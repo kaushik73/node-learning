@@ -1,35 +1,13 @@
-## Lec-4 : Module.export & Require
+## Lec-5 : Diving into NodeJs Repo :
 
-**Module protect their variables and funx from leaking.**
-→ means if you run app.js which has require(’./sum.js’) then the code inside sum.js will execute but you cannot use variables, functions of sum.js in app.js.
+require("./path")
+All the code of the module is wrapped inside a function (IIFE)
+IIFE - Immediately Invoked Function Expression
 
-if want to use variables, functions we need to export.
+(function () {
+// ALL code of the module runs inside here
+})();
 
-```jsx
-//App.js
+So Because of IIFE - variables and funx inside a module are private to that module only.
 
-const calcSum = require("./sum.js");
-
-calcSum(10, 20);
-
-// sum.js
-function calcSum(a, b) {
-  return a + b;
-}
-
-module.exports = calcSum;
-```
-
-New File sum.js is k/as Module
-
-This pattern of import/export is k/as CommonJS Modules **(cjs)**.
-
-Other pattern is ES Modules **(mjs)**
-
-By default type : commonJS is there.
-
----
-
-[]()
-
-![alt text](image.png)
+What NodeJs doing ⇒ wrapping your module code inside IIFE, adding some extra arguments to it (eg. module, require) and then passing it to V8 engine for execution
