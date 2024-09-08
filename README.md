@@ -22,11 +22,9 @@ module.exports = calcSum;
 
 New File sum.js is k/as Module
 
-This pattern of import/export is k/as CommonJS Modules **(cjs)**.
+This pattern is k/as CommonJS Modules **(cjs)**. By default type : commonJS is there.
 
-Other pattern is ES Modules **(mjs)**
-
-By default type : commonJS is there.
+Other pattern is ES Modules **(mjs).** We use import/export here. We have to make `type="module"` in package.json.
 
 ---
 
