@@ -15,8 +15,9 @@ setTimeout(function callback() {
   console.log("I will after 5 seconds Sarkaar!");
 }, 5000);
 
-fs.readFile("./file.txt", "utf-8", function callback(err, response) {
+fs.readFile("./ep-7/file.txt", "utf-8", function callback(err, response) {
   console.log("This will get printed after file read ", response);
+  console.log("error", err);
 });
 
 function kitneAadmiThe(a, b) {
