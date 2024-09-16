@@ -1,9 +1,16 @@
+One Circle from timer to close phase is k/as 1 tick.
+
 ![alt text](image.png)
-![alt text](image-1.png)
-In the Libuv working : 4 phases (timer,poll,check,close). Before each of these phase process.nextTick() and promise/callbacks runs.
+For Libuv we have 4 thread pool by default, k/as UV_THREADPOOL_SIZE.
 
-If callstack is empty and callback queue is also empty event loop waits at pool phase.
+V8 engine is Single Threaded
 
-## Example :
+Libuv makes NodeJs multithreaded.
 
-![alt text](image-2.png)
+## **NodeJS is single/multi**
+
+**Answer ⇒** NodeJs is single threaded for sync code and multi-threaded if async code.
+
+---
+
+We can change no. of thread pool by process.env.UV_THREADPOOL_SIZE
