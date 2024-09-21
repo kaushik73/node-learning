@@ -1,68 +1,57 @@
-## Lec-11 : Creating a Server :
+## EP-12 : Database - SQL & NoSQL
+
+### What is Database and DBMS :
+
+In [computing](https://en.wikipedia.org/wiki/Computing), a **database** is an organized collection of [data](<https://en.wikipedia.org/wiki/Data_(computing)>) or a type of [data store](https://en.wikipedia.org/wiki/Data_store) based on the use of a **database management system** (**DBMS**), the [software](https://en.wikipedia.org/wiki/Software) that interacts with [end users](https://en.wikipedia.org/wiki/End_user), [applications](https://en.wikipedia.org/wiki/Application_software), and the database itself to capture and analyze the data.
+
+The DBMS additionally encompasses the core facilities provided to administer the database. The sum total of the database, the DBMS and the associated applications can be referred to as a **database system**. Often the term "database" is also used loosely to refer to any of the DBMS, the database system or an application associated with the database.
+
+---
+
+**Major Types of Databases :**
+
+1. Relational Databases (MySQL, PostgreSQL)
+2. NoSQL Databases (MongoDB)
+
+**NOTE** : There are many more types of DB also.
+
+---
+
+### **Difference between RDBMS and NoSQL**
 
 ![alt text](image.png)
 
-### **What is Server?**
+![alt text](image-1.png)
 
-When someone says "deploy to the server," it means we're referring to the hardware where the operating system and processors are. It means we're running our application, the one we've coded, on that machine. This hardware allows us to save something to the system and retrieve it.
+MongoDB is Document database.
 
----
+Note : as in MySql we have table - in MongoDB we have collection
 
-### **TCP IP Protocol/Web**
+in MySql we have row - in MongoDB we have document
 
-Whenever data is sent, it uses the **Transfer Control Protocol (TCP)**. Multiple computers are connected to each other using the internet, which is why it’s called the web, and each has an address. But what does "protocol" mean? It means rules. Communication must follow some rules.
-
----
-
-### **Other protocols**
-
-HTTP, FTP, SMTP are different types of request protocols. Depending on the type of request, different rules are used to transfer data. It's like getting things from a shop — different items have different rules. For example, water needs a bottle, but vegetables need a packet. The same applies to requests in a server; the protocol defines the rules. For normal web requests, we use the **HTTP protocol** (Hypertext Transfer Protocol).
+in MySql we have column - in MongoDB we have field
 
 ---
 
-http ⇒ the language which server-client communicate defined by http/smtp/ftp
+### **What is** Normalization :
 
-TCP/IP ⇒ protocol of sending the data eg. send data in packets
-
----
-
-T here is mapping of IP address and domain name on DNS server
-
----
-
-When we search something on browser then vo dns server se ip leke then requ. goes to that server that is http-server fetch the required data and gives and it comes in chunks. There is stream of data that is transferred and in stream we have buffers.
+- Normalization is the process of organizing the data in the database.
+- Normalization is used to minimize the redundancy from a relation or set of relations. It is also used to eliminate undesirable characteristics like Insertion, Update, and Deletion Anomalies.
+- Normalization divides the larger table into smaller and links them using relationships.
+- The normal form is used to reduce redundancy from the database table.
 
 ---
 
-We can create multiple http server on same IP ( or same server ) as ports are different. So ip + port refers to http-server.
+## EP-13 : Creating a DB :
 
-## ![alt text](image-1.png)
+### Steps to setup MongoDB :
 
-![alt text](image-2.png)
+go to mongoDB > create new project > create a free M0 cluster > create a user & password > get a connection string > download mongoDBCompass (UI for mongoDB) > paste the string into new connection > GOOD TO GOOOOO….
 
-for one application we can have different servers as well.
+Starting in project > npm install mongodb >
 
----
+Inital Setup : https://www.mongodb.com/docs/drivers/node/current/quick-start/connect-to-mongodb/
 
-![alt text](image-3.png)
-
-http connection == **socket**, that ends connection after taking necessary data… and in **web socket** it does not end its connection.
+How to use : https://www.mongodb.com/docs/drivers/node/current/usage-examples
 
 ---
-
-## 1st Server :
-
-```jsx
-const sever = http.createServer(function (req, res) {
-  //req and res are the object you get
-  // .end to use to send the response
-  if (req.url === "/seed-a-plant") {
-    res.end("🌱 Plant Seeded, Wohoo  👏");
-    return;
-  }
-  res.end("You are getting this from heyashu.in");
-});
-
-// listen on post 7777
-sever.listen(7777);
-```
