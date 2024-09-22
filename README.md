@@ -1,2 +1,1 @@
-All learning for ep-5 is in index.js file.
-Let's Go there - read and learn
+mongodb+srv://NamasteNode:HcM1uzZSFggAQMtY@namastenode.l8mtm.mongodb.net/?retryWrites=true&w=majority&appName=NamasteNode
