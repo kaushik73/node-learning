@@ -1,12 +1,26 @@
 const express = require("express");
 const { adminAuth, userAuth } = require("./middleware/auth");
+const bcrypt = require("bcrypt");
 const connectDB = require("./config/database");
 const User = require("./models/user");
 const app = express();
 app.use(express.json());
+
 app.post("/signup", async (req, res) => {
-  const user = new User(req.body);
   try {
+    const { fName, lName, gender, age, profileURL, about, emailId, password } =
+      req.body;
+    const hashPassword = await bcrypt.hash(password, 10);
+    const user = new User({
+      fName,
+      lName,
+      gender,
+      age,
+      profileURL,
+      about,
+      emailId,
+      password: hashPassword,
+    });
     await user.save();
     res.send("User signup success");
   } catch (err) {
@@ -18,6 +32,25 @@ app.post("/signup", async (req, res) => {
   }
 });
 
+app.post("/login", async (req, res, _) => {
+  try {
+    const { emailId, password } = req.body;
+
+    const user = await User.findOne({ emailId: emailId });
+
+    if (!user) {
+      throw new Error("EmailId is not present");
+    }
+
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    if (isPasswordCorrect) {
+      res.send("Login Success");
+    }
+  } catch (err) {
+    res.status(401).send("Error : " + err);
+  }
+});
+
 app.get("/feed", async (req, res) => {
   try {
     const data = await User.find({});
@@ -26,6 +59,7 @@ app.get("/feed", async (req, res) => {
     res.status(400).send("Error " + err);
   }
 });
+
 app.get("/user", async (req, res) => {
   try {
     const data = await User.find({ emailId: req.body.emailId });
@@ -49,11 +83,9 @@ app.patch("/user/:userId", async (req, res) => {
       throw new Error("Update Not Allowed");
     }
 
-    if (parseInt(modifiedData.age) > 100) {
-      throw new Error("Age above 100 not allowed");
-    }
-
-    const data = await User.findOneAndUpdate({ _id: userId }, modifiedData);
+    const data = await User.findOneAndUpdate({ _id: userId }, modifiedData, {
+      runValidators: true,
+    });
 
     res.send(data);
   } catch (err) {
