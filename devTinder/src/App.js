@@ -5,20 +5,16 @@ const User = require("./models/user");
 const app = express();
 app.use(express.json());
 app.post("/signup", async (req, res) => {
-  // {
-  //   "fName": "Mohit",
-  //   "lName": "Pamnani",
-  //   "emailId": "kaushik@gmail.com",
-  //   "password": "kaushik#2@1",
-  //   "gender": "Female"
-  // }
-
   const user = new User(req.body);
   try {
     await user.save();
     res.send("User signup success");
   } catch (err) {
-    res.status(400).send("Error saving user", err);
+    let errors = [];
+    Object.keys(err.errors).forEach((key) => {
+      errors.push(err.errors[key].message);
+    });
+    res.status(400).send(errors);
   }
 });
 
@@ -27,7 +23,7 @@ app.get("/feed", async (req, res) => {
     const data = await User.find({});
     res.send(data);
   } catch (err) {
-    res.status(400).send("Error ", err);
+    res.status(400).send("Error " + err);
   }
 });
 app.get("/user", async (req, res) => {
@@ -35,19 +31,33 @@ app.get("/user", async (req, res) => {
     const data = await User.find({ emailId: req.body.emailId });
     res.send(data);
   } catch (err) {
-    res.status(400).send("Error", err);
+    res.status(400).send("Error" + err);
   }
 });
 
-app.patch("/user", async (req, res) => {
+app.patch("/user/:userId", async (req, res) => {
   try {
-    const data = await User.findOneAndUpdate(
-      { emailId: req.body.emailId },
-      req.body
+    const userId = req.params.userId;
+    const modifiedData = req.body;
+    console.log(modifiedData);
+
+    const ALLOWED_UPDATES = ["profileURL", "about", "gender", "age", "emailId"];
+    const isUpdateAllowed = Object.keys(modifiedData).every((k) =>
+      ALLOWED_UPDATES.includes(k)
     );
+    if (!isUpdateAllowed) {
+      throw new Error("Update Not Allowed");
+    }
+
+    if (parseInt(modifiedData.age) > 100) {
+      throw new Error("Age above 100 not allowed");
+    }
+
+    const data = await User.findOneAndUpdate({ _id: userId }, modifiedData);
+
     res.send(data);
   } catch (err) {
-    res.status(400).send("Error", err);
+    res.status(400).send(JSON.stringify(err.message));
   }
 });
 
@@ -56,7 +66,7 @@ app.delete("/user", async (req, res) => {
     const data = await User.findOneAndDelete({ emailId: req.body.emailId });
     res.send(data);
   } catch (err) {
-    res.status(400).send("Error", err);
+    res.status(400).send("Error" + err);
   }
 });
 

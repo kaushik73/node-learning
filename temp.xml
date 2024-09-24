@@ -1,0 +1,65 @@
+<cfcomponent implements="MMSLinks.DDTools.PointData.IPTDisplay" extends="MMSLinks.DDTools.PointData.TableDisplay">
+
+	<cffunction name="ProcessSubmittedForm">		
+		<cfargument name="formData" />
+		<cfif variables.RecordData.RecordID NEQ "">
+			<cfset variables.RecordData.Data = GetRecordData(variables.RecordData.RecordID) />
+			
+			<cfif structKeyExists(formData, 'Verified') ANd formData.Verified NEQ variables.RecordData.Data.Verified>
+				<cfset formData.VerifiedBy = Session.Security.GetUserName() />
+				<cfset formData.VerifiedDateTime = Now() />
+			</cfif>  	
+		</cfif>	
+		
+		<cfif !isdefined("url.ID") AND (isdefined("url.Line") AND (url.Line NEQ '99' OR url.Line NEQ ''))>
+			<cfset formData.ProductCodeActual = GetPlcData(url.Line)>
+		</cfif>
+
+		<cfif structKeyExists(formData, 'Verified') AND formData.Verified EQ ''>
+			<cfset formData.VerifiedBy = '' />
+			<cfset formData.VerifiedDateTime = '' />
+		</cfif>  
+		<cfreturn super.ProcessSubmittedForm(formData) />
+	</cffunction>
+
+    <cffunction name="GenerateEditControl_VerifiedBy">
+		<cfargument name="selectedValue" />
+		
+		<cfif variables.RecordData.RecordID NEQ ""  and Session.Security.AuthorizeUser("MMSVerificationApprovals")>
+		<cfset local.formValue = selectedValue EQ "" ? Session.Security.GetUserName() : selectedValue />
+			<cfset local.displayValue = local.formValue />		
+		<cfelse>
+			<cfset local.displayValue = Application.LocalizationModel.GetLocalizedString('Core.PTEdit.Messages.PendingVerification') />
+			<cfset local.formValue = "" />	
+		</cfif>		
+		
+		<cfreturn GenerateGenericEditControl_HiddenInput(local.formValue, local.displayValue) />		
+	</cffunction>
+
+	<cffunction name="GenerateEditControl_Verified">
+		<cfargument name="selectedValue" />
+		
+		<cfif variables.RecordData.RecordID NEQ ""  and   Session.Security.AuthorizeUser("MMSVerificationApprovals")>
+			<cfreturn GenerateEditControlSelectFromLookup(selectedValue) />
+		</cfif>		
+		
+		<cfset local.formValue = "" />
+		<cfset local.displayValue = Application.LocalizationModel.GetLocalizedString('Core.PTEdit.Messages.PendingVerification') />
+		
+		<cfreturn GenerateGenericEditControl_HiddenInput(local.formValue, local.displayValue) />		
+	</cffunction>
+
+	<cffunction name="GenerateEditControl_VerifiedDateTime">
+		<cfargument name="selectedValue" />		
+		
+		<cfif variables.RecordData.RecordID NEQ "" and  Session.Security.AuthorizeUser("MMSVerificationApprovals")>
+			<cfreturn GenerateEditControlByDataType(selectedValue) />
+		</cfif>
+		
+		<cfset local.formValue = "" />
+		<cfset local.displayValue = Application.LocalizationModel.GetLocalizedString('Core.PTEdit.Messages.PendingVerification') />
+		
+		<cfreturn GenerateGenericEditControl_HiddenInput(local.formValue, local.displayValue) />
+	</cffunction>
+ 
+</cfcomponent>
