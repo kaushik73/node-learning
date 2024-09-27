@@ -1,10 +1,14 @@
 const express = require("express");
-const { adminAuth, userAuth } = require("./middleware/auth");
+const cookieParser = require("cookie-parser");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { userAuth } = require("../src/middleware/auth");
 const connectDB = require("./config/database");
 const User = require("./models/user");
 const app = express();
+
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   try {
@@ -42,13 +46,24 @@ app.post("/login", async (req, res, _) => {
       throw new Error("EmailId is not present");
     }
 
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    const isPasswordCorrect = await user.validatePassword(password);
     if (isPasswordCorrect) {
+      const token = await user.getJWT();
+
+      res.cookie("token", token);
       res.send("Login Success");
+    } else {
+      throw new Error("Invalid Cred");
     }
   } catch (err) {
     res.status(401).send("Error : " + err);
   }
+});
+
+app.get("/profile", userAuth, async (req, res) => {
+  console.log("Profile API called");
+
+  res.send("user is : " + req.user);
 });
 
 app.get("/feed", async (req, res) => {
@@ -73,7 +88,6 @@ app.patch("/user/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
     const modifiedData = req.body;
-    console.log(modifiedData);
 
     const ALLOWED_UPDATES = ["profileURL", "about", "gender", "age", "emailId"];
     const isUpdateAllowed = Object.keys(modifiedData).every((k) =>
