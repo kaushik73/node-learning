@@ -1,8 +1,8 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const { userAuth } = require("../src/middleware/auth");
+const authRouter = require("../src/routes/auth");
+const profileRouter = require("../src/routes/profile");
+const requestRouter = require("../src/routes/requests");
 const connectDB = require("./config/database");
 const User = require("./models/user");
 const app = express();
@@ -10,61 +10,9 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.post("/signup", async (req, res) => {
-  try {
-    const { fName, lName, gender, age, profileURL, about, emailId, password } =
-      req.body;
-    const hashPassword = await bcrypt.hash(password, 10);
-    const user = new User({
-      fName,
-      lName,
-      gender,
-      age,
-      profileURL,
-      about,
-      emailId,
-      password: hashPassword,
-    });
-    await user.save();
-    res.send("User signup success");
-  } catch (err) {
-    let errors = [];
-    Object.keys(err.errors).forEach((key) => {
-      errors.push(err.errors[key].message);
-    });
-    res.status(400).send(errors);
-  }
-});
-
-app.post("/login", async (req, res, _) => {
-  try {
-    const { emailId, password } = req.body;
-
-    const user = await User.findOne({ emailId: emailId });
-
-    if (!user) {
-      throw new Error("EmailId is not present");
-    }
-
-    const isPasswordCorrect = await user.validatePassword(password);
-    if (isPasswordCorrect) {
-      const token = await user.getJWT();
-
-      res.cookie("token", token);
-      res.send("Login Success");
-    } else {
-      throw new Error("Invalid Cred");
-    }
-  } catch (err) {
-    res.status(401).send("Error : " + err);
-  }
-});
-
-app.get("/profile", userAuth, async (req, res) => {
-  console.log("Profile API called");
-
-  res.send("user is : " + req.user);
-});
+app.use("/", authRouter);
+app.use("/", profileRouter);
+app.use("/", requestRouter);
 
 app.get("/feed", async (req, res) => {
   try {

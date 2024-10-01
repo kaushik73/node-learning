@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       minLength: 3,
+      index: true,
     },
     lName: {
       type: String,
@@ -56,6 +57,8 @@ const userSchema = new mongoose.Schema(
       default:
         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4mYGiDHOtUVcSxuzNfeds4xWXNOpQ-lIMPA&s",
     },
+    resetPasswordOtp: { type: String },
+    otpExpires: { type: Date },
   },
   { timestamps: true }
 );
