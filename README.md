@@ -18,28 +18,18 @@ PATCH /profile/password
 
 ## connectionrequest
 
-POST /request/send/interested/:userId
+POST /request/send/:status/:userId -> status=[ignored , interested]
 
-POST /request/send/ignored/:userId
-
-POST /request/review/accepted/:requestId
-
-POST /request/review/rejected/:requestId
+POST /request/review/:status/:requestId -> status=[accepted , rejected]
 
 ## user
 
 GET /user/connections
 
-GET /user/request
+GET /user/request/recieved
 
 GET /user/feed
 
 ##
 
 ##
-
-## Lec-12 : Logical DB Query & Compound Indexes
-
-When we make any field unique then it automatically make it as index, so that queries became fast.
-
-or we can do index : true

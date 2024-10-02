@@ -64,13 +64,31 @@ requestRouter.post(
 
 // for accepted , rejected
 requestRouter.post(
-  "/request/review/:status/:userId",
+  "/request/review/:status/:requestId",
   userAuth,
   async (req, res) => {
-    const fromUserId = req.user._id;
-    const toUserId = req.params.userId;
-    const status = req.params.status;
     try {
+      const loggedInUser = req.user;
+      const { status, requestId } = req.params;
+
+      const allowedStatus = ["accepted", "rejected"];
+      if (!allowedStatus.includes(status)) {
+        res.status(401).json({ message: "invalid status type", status });
+      }
+
+      const connectionRequest = await ConnectionRequest.findOne({
+        fromUserId: requestId,
+        toUserId: loggedInUser._id,
+        status: "interested",
+      });
+
+      if (!connectionRequest) {
+        res.status(404).json({ message: "connection request not found" });
+      }
+      connectionRequest.status = status;
+      const data = await connectionRequest.save();
+
+      res.json({ message: "connection request " + status, data });
     } catch (err) {
       res.status(401).send("Error : " + err);
     }
