@@ -18,10 +18,10 @@ userRouter.get("/user/request/recieved", userAuth, async (req, res) => {
 
     if (!interestedRequest.length > 0) {
       return res
-        .status(404)
-        .json({ message: "No active connection request found" });
+        .status(203)
+        .json({ message: "No active connection request found", data: [] });
     }
-    res.send(interestedRequest);
+    res.json({ data: interestedRequest });
   } catch (err) {
     res.status(401).send("Error : " + err);
   }
@@ -51,7 +51,7 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
       }
       return row.fromUserId;
     });
-    res.json(data);
+    res.json({ data, message: "connections fetched successfully!" });
 
     // res.json(acceptedRequests.toUserId);
   } catch (err) {
@@ -94,7 +94,7 @@ userRouter.get("/user/feed", userAuth, async (req, res) => {
 
     console.log(usersToShow);
 
-    res.send(usersToShow);
+    res.json({ data: usersToShow, message: "feed data " });
   } catch (err) {
     res.status(400).send("Error " + err.message);
   }

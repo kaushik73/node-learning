@@ -17,9 +17,11 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
   try {
     console.log("Profile view API called");
 
-    res.send("user is : " + req.user);
+    res.json({ data: req.user, message: "profile data" });
   } catch (err) {
-    res.send(err);
+    // token not valid :
+
+    res.status(404).json({ message: "Something Went wrong", data: err });
   }
 });
 
@@ -27,24 +29,26 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
   try {
     console.log("Profile edit API called");
     if (!validateEditProfileData(req)) {
-      throw new Error("Invalid Profile Edit Request ");
+      return res.status(203).json({ message: "Invalid Profile Edit Request " });
     }
 
     const user = req.user;
     const modifiedData = req.body;
-    console.log("old", req.user);
     Object.keys(req.body).forEach((key) => (modifiedData[key] = req.body[key]));
-    console.log("new", modifiedData);
 
     const data = await User.findOneAndUpdate(
       { emailId: user.emailId },
       modifiedData,
       {
         runValidators: true,
+        new: true,
       }
     );
 
-    res.send(`${req.user.fName} profile is updated successfully`);
+    return res.json({
+      message: `${req.user.fName} profile is updated successfully`,
+      data: data,
+    });
   } catch (err) {
     res.status(401).send("Error : " + err.message);
   }
