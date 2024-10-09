@@ -15,8 +15,6 @@ const transporter = nodemailer.createTransport({
 
 profileRouter.get("/profile/view", userAuth, async (req, res) => {
   try {
-    console.log("Profile view API called");
-
     res.json({ data: req.user, message: "profile data" });
   } catch (err) {
     // token not valid :
@@ -27,7 +25,6 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
 
 profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
   try {
-    console.log("Profile edit API called");
     if (!validateEditProfileData(req)) {
       return res.status(203).json({ message: "Invalid Profile Edit Request " });
     }
