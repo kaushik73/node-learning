@@ -1,5 +1,12 @@
 ## Ep-6 : Libuv and Async I/O :
 
+### What is Libuv :
+
+Libuv is a crucial component in Node.js, responsible for its asynchronous I/O operations.
+Here's what you need to know:
+Functionality:
+Libuv is a cross-platform C library that provides an event loop, thread pool, and other utilities for handling asynchronous I/O operations such as file system access, networking, and timers.
+
 **Sync Task**
 
 ![alt text](image.png)
