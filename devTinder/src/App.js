@@ -12,8 +12,10 @@ app.use(
   cors({
     origin: "http://localhost:5173",
     credentials: true,
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"], // Explicitly allow PATCH
   })
 );
+
 app.use(express.json());
 app.use(cookieParser());
 
