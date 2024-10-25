@@ -5,12 +5,11 @@ const nodemailer = require("nodemailer");
 const User = require("../models/user");
 const { userAuth } = require("../middleware/auth");
 const { validateEditProfileData } = require("../utils/validation");
+const { ErrorSendingOTP } = require("../utils/customMessages");
+const { GmailSecretCred, emailServiceType } = require("../utils/constants");
 const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "kaushikjain67890@gmail.com",
-    pass: "vkfx pibl pjey upoa", // Store in env variables in production
-  },
+  service: emailServiceType,
+  auth: GmailSecretCred,
 });
 
 profileRouter.get("/profile/view", userAuth, async (req, res) => {
@@ -18,7 +17,6 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
     res.json({ data: req.user, message: "profile data" });
   } catch (err) {
     // token not valid :
-
     res.status(404).json({ message: "Something Went wrong", data: err });
   }
 });
@@ -80,7 +78,7 @@ profileRouter.patch("/profile/resetPassword", async (req, res) => {
 
     res.json({ message: "OTP sent to your email." });
   } catch (error) {
-    res.status(500).json({ message: "Error sending OTP", error });
+    res.status(500).json({ message: ErrorSendingOTP, error });
   }
 });
 

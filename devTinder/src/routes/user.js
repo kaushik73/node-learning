@@ -3,8 +3,9 @@ const connectionRequest = require("../models/connectionRequest");
 const users = require("../models/user");
 const { userAuth } = require("../middleware/auth");
 const { faCodePullRequest } = require("@fortawesome/free-solid-svg-icons");
+const { maxFeedLimit, defaultFeedLimit } = require("../utils/constants");
 const userRouter = express.Router();
-const USER_SAFE_DATA = "fName lName age gender about skills profileURL";
+
 // pending connection requests
 userRouter.get("/user/request/recieved", userAuth, async (req, res) => {
   try {
@@ -13,8 +14,7 @@ userRouter.get("/user/request/recieved", userAuth, async (req, res) => {
         toUserId: req.user._id,
         status: "interested",
       })
-      .populate("fromUserId", USER_SAFE_DATA);
-    // .populate("fromUserId", ["fName", "lName"]);
+      .populate("fromUserId", userSafeData);
 
     if (!interestedRequest.length > 0) {
       return res
@@ -30,15 +30,14 @@ userRouter.get("/user/request/recieved", userAuth, async (req, res) => {
 userRouter.get("/user/connections", userAuth, async (req, res) => {
   try {
     const acceptedRequests = await connectionRequest
-      // .find({ toUserId: req.user._id, status: "accepted" })
       .find({
         $or: [
           { fromUserId: req.user._id, status: "accepted" },
           { toUserId: req.user._id, status: "accepted" },
         ],
       })
-      .populate("fromUserId", USER_SAFE_DATA)
-      .populate("toUserId", USER_SAFE_DATA);
+      .populate("fromUserId", userSafeData)
+      .populate("toUserId", userSafeData);
     if (!acceptedRequests.length > 0) {
       return res
         .status(404)
@@ -52,8 +51,6 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
       return row.fromUserId;
     });
     res.json({ data, message: "connections fetched successfully!" });
-
-    // res.json(acceptedRequests.toUserId);
   } catch (err) {
     res.status(401).send("Error : " + err.message);
   }
@@ -61,10 +58,10 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
 
 userRouter.get("/user/feed", userAuth, async (req, res) => {
   const loggedInUser = req.user;
-  let limit = req.query.limit || 10;
-  limit = limit > 50 ? 50 : limit; // at max limit should be 50
+  let limit = req.query.limit || defaultFeedLimit;
+  limit = limit > maxFeedLimit ? maxFeedLimit : limit;
   const page = req.query.page || 1;
-  const skip = (page - 1) * 10;
+  const skip = (page - 1) * defaultFeedLimit;
   try {
     const usersToBeHidden = await connectionRequest
       .find({
@@ -88,7 +85,7 @@ userRouter.get("/user/feed", userAuth, async (req, res) => {
           },
         ],
       })
-      .select(USER_SAFE_DATA)
+      .select(userSafeData)
       .skip(skip)
       .limit(limit);
 

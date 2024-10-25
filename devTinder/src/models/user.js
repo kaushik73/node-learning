@@ -2,6 +2,18 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const {
+  Default_User_Image_URI,
+  Default_User_About,
+  JWTSecretKey,
+  JWTExpireInDays,
+} = require("../utils/constants");
+const {
+  minAgeMesssge,
+  maxAgeMesssge,
+  emailIdRequire,
+  passwordRequire,
+} = require("../utils/customMessages");
 
 const userSchema = new mongoose.Schema(
   {
@@ -17,8 +29,8 @@ const userSchema = new mongoose.Schema(
     },
     age: {
       type: Number,
-      min: [18, "Age below 18 not valid"],
-      max: [100, "Age above 100 not valid"],
+      min: [18, minAgeMesssge],
+      max: [100, maxAgeMesssge],
     },
 
     gender: {
@@ -35,7 +47,7 @@ const userSchema = new mongoose.Schema(
     emailId: {
       type: String,
       unique: true,
-      required: [true, "email id is require"],
+      required: [true, emailIdRequire],
       validate(value) {
         if (!validator.isEmail(value)) {
           throw new Error("Invalid Email ID -  " + value);
@@ -46,16 +58,15 @@ const userSchema = new mongoose.Schema(
       type: String,
       unique: true,
       minLength: 3,
-      required: [true, "password is require"],
+      required: [true, passwordRequire],
     },
     about: {
       type: String,
-      default: "This is default about",
+      default: Default_User_About,
     },
     profileURL: {
       type: String,
-      default:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4mYGiDHOtUVcSxuzNfeds4xWXNOpQ-lIMPA&s",
+      default: Default_User_Image_URI,
     },
     resetPasswordOtp: { type: String },
     otpExpires: { type: Date },
@@ -65,8 +76,8 @@ const userSchema = new mongoose.Schema(
 
 userSchema.methods.getJWT = async function () {
   const user = this;
-  const token = await jwt.sign({ _id: user._id }, "DEV@Tinder$790", {
-    expiresIn: "7d",
+  const token = await jwt.sign({ _id: user._id }, JWTSecretKey, {
+    expiresIn: JWTExpireInDays,
   });
 
   return token;

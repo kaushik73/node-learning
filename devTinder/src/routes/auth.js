@@ -2,6 +2,11 @@ const express = require("express");
 const authRouter = express.Router();
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
+const {
+  Invalid_Cred,
+  LogoutSuccess,
+  UserSignupSuccess,
+} = require("../utils/customMessages");
 
 authRouter.post("/signup", async (req, res) => {
   try {
@@ -19,7 +24,7 @@ authRouter.post("/signup", async (req, res) => {
       password: hashPassword,
     });
     const userData = await user.save();
-    res.json({ message: "User signup success", data: userData });
+    res.json({ message: UserSignupSuccess, data: userData });
   } catch (err) {
     let errors = [];
     Object.keys(err.errors).forEach((key) => {
@@ -36,7 +41,7 @@ authRouter.post("/login", async (req, res, _) => {
     const user = await User.findOne({ emailId: emailId });
 
     if (!user) {
-      return res.status(203).json({ message: "Invalid Credentials" });
+      return res.status(203).json({ message: Invalid_Cred });
     }
 
     const isPasswordCorrect = await user.validatePassword(password);
@@ -46,9 +51,9 @@ authRouter.post("/login", async (req, res, _) => {
       res.cookie("token", token, {
         expires: new Date(Date.now() + 8 * 3600000),
       });
-      return res.json({ data: user, message: "Login Success" });
+      return res.json({ data: user, message: LoginSuccess });
     } else {
-      return res.status(203).json({ message: "Invalid Credentials" });
+      return res.status(203).json({ message: Invalid_Cred });
     }
   } catch (err) {
     return res.status(401).json({ message: err.message });
@@ -60,7 +65,7 @@ authRouter.post("/logout", async (req, res) => {
     .cookie("token", null, {
       expires: new Date(Date.now()),
     })
-    .send("logout success");
+    .send(LogoutSuccess);
 });
 
 module.exports = authRouter;

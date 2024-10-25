@@ -9,7 +9,7 @@ const connectionRequestSchema = mongoose.Schema(
     toUserId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "users", // refernce to user collection
+      ref: "users",
     },
     status: {
       type: String,
@@ -27,7 +27,7 @@ const connectionRequestSchema = mongoose.Schema(
 
 // compound index to make my query fast
 connectionRequestSchema.index({ fromUserId: 1, toUserId: 1 });
-// everytime before you save this will be called
+// everytime before saving this will be called
 connectionRequestSchema.pre("save", function (next) {
   const connectionRequest = this;
   if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {

@@ -5,6 +5,10 @@ const jwt = require("jsonwebtoken");
 const { userAuth } = require("../middleware/auth");
 const User = require("../models/user");
 const ConnectionRequest = require("../models/connectionRequest");
+const {
+  allowedReviewStatus,
+  allowedSentStatus,
+} = require("../utils/constants");
 
 // for interseted , ignored
 requestRouter.post(
@@ -21,7 +25,7 @@ requestRouter.post(
         toUserId,
         status,
       });
-      const allowedStatus = ["ignored", "interested"];
+      const allowedStatus = allowedSentStatus;
       if (!allowedStatus.includes(status)) {
         res.status(401).json({ message: "invalid status type", status });
       }
@@ -71,7 +75,7 @@ requestRouter.post(
       const loggedInUser = req.user;
       const { status, requestId } = req.params;
 
-      const allowedStatus = ["accepted", "rejected"];
+      const allowedStatus = allowedReviewStatus;
       if (!allowedStatus.includes(status)) {
         res.status(401).json({ message: "invalid status type", status });
       }

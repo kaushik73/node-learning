@@ -7,12 +7,17 @@ const requestRouter = require("../src/routes/requests");
 const userRouter = require("../src/routes/user");
 const connectDB = require("./config/database");
 const User = require("./models/user");
+const {
+  AllowedCorosMethods,
+  AllowedFrontEndURI,
+  MAX_SERVER_START_TRY,
+} = require("./utils/constants");
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: AllowedFrontEndURI,
     credentials: true,
-    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"], // Explicitly allow PATCH
+    methods: AllowedCorosMethods,
   })
 );
 
@@ -24,13 +29,27 @@ app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
 
-connectDB()
-  .then(() => {
-    console.log("DB Connected");
-    app.listen(7777, () => {
-      console.log("app running on port - 7777");
+let retries = 0;
+function startApp() {
+  connectDB()
+    .then(() => {
+      console.log("DB Connected");
+      app.listen(7777, () => {
+        console.log("App running on port - 7777");
+      });
+    })
+    .catch(async (err) => {
+      console.error("Error:", err);
+
+      if (retries < MAX_SERVER_START_TRY) {
+        retries++;
+        console.log(`Retrying to connect to DB... Attempt ${retries}`);
+        setTimeout(startApp, 3000);
+      } else {
+        console.log("Max retries reached. Shutting down.");
+        process.exit(1);
+      }
     });
-  })
-  .catch((err) => {
-    console.error("Error : ", err);
-  });
+}
+
+startApp();
