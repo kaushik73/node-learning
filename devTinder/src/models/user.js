@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { USER_DEFAULTS } = require("../utils/defaults");
-const { ERROR } = require("../utils/messages");
-const { JWT } = require("../utils/config");
+const { USER_DEFAULTS } = require("../utils/constants/defaults");
+const { ERROR } = require("../utils/constants/messages");
+const { JWT } = require("../utils/constants/config");
 
 const userSchema = new mongoose.Schema(
   {

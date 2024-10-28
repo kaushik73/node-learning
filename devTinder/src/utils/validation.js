@@ -1,4 +1,4 @@
-const { USER_DEFAULTS } = require("./defaults");
+const { USER_DEFAULTS } = require("./constants/defaults");
 
 const validateEditProfileData = (req) => {
   try {

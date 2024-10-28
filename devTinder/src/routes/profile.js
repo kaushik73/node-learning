@@ -8,8 +8,11 @@ const { validateEditProfileData } = require("../utils/validation");
 
 const { sendOtpEmail } = require("../utils/emailHandler");
 
-const { OTP_CONFIG } = require("../utils/defaults");
-const { PROFILE_MESSAGES, OTP_MESSAGES } = require("../utils/messages");
+const { OTP_CONFIG } = require("../utils/constants/defaults");
+const {
+  PROFILE_MESSAGES,
+  OTP_MESSAGES,
+} = require("../utils/constants/messages");
 
 // Get profile data
 profileRouter.get("/profile/view", userAuth, async (req, res) => {

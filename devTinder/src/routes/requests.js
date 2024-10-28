@@ -6,8 +6,11 @@ const { userAuth } = require("../middleware/auth");
 const User = require("../models/user");
 const ConnectionRequest = require("../models/connectionRequest");
 
-const { REQUEST_MESSAGES, CUSTOM_MESSAGES } = require("../utils/messages");
-const { CONNECTION_STATUSES } = require("../utils/defaults");
+const {
+  REQUEST_MESSAGES,
+  CUSTOM_MESSAGES,
+} = require("../utils/constants/messages");
+const { CONNECTION_STATUSES } = require("../utils/constants/defaults");
 
 const doesUserExist = async (userId) => {
   return await User.findById(userId);

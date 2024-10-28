@@ -13,9 +13,9 @@ const {
   RETRY,
   ALLOWED_FRONTEND_URI,
   SERVER,
-} = require("./utils/config");
+} = require("./utils/constants/config");
 
-const { DB_MESSAGES } = require("./utils/messages");
+const { DB_MESSAGES } = require("./utils/constants/messages");
 const app = express();
 
 app.use(

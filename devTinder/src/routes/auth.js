@@ -2,9 +2,9 @@ const express = require("express");
 const authRouter = express.Router();
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
-const { USER_DEFAULTS } = require("../utils/defaults");
-const { GENERAL_MESSAGES } = require("../utils/messages");
-const { JWT } = require("../utils/config");
+const { USER_DEFAULTS } = require("../utils/constants/defaults");
+const { GENERAL_MESSAGES } = require("../utils/constants/messages");
+const { JWT } = require("../utils/constants/config");
 
 authRouter.post("/signup", async (req, res) => {
   try {

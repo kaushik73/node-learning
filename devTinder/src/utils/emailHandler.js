@@ -1,5 +1,5 @@
-const { OTP_MESSAGES } = require("./messages");
-const { EMAIL } = require("./config");
+const { OTP_MESSAGES } = require("./constants/messages");
+const { EMAIL } = require("./constants/config");
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({

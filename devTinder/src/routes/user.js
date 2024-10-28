@@ -6,8 +6,11 @@ const { faCodePullRequest } = require("@fortawesome/free-solid-svg-icons");
 const userRouter = express.Router();
 const User = require("../models/user");
 const ConnectionRequest = require("../models/connectionRequest");
-const { USER_DEFAULTS, FEED_CONFIG } = require("../utils/defaults");
-const { PROFILE_MESSAGES, FEED_MESSAGES } = require("../utils/messages");
+const { USER_DEFAULTS, FEED_CONFIG } = require("../utils/constants/defaults");
+const {
+  PROFILE_MESSAGES,
+  FEED_MESSAGES,
+} = require("../utils/constants/messages");
 
 const getPagination = (page = 1, limit = FEED_CONFIG.DEFAULT_LIMIT) => {
   limit = Math.min(limit, FEED_CONFIG.MAX_LIMIT);

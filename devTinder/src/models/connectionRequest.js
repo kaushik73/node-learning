@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const { CONNECTION_STATUSES } = require("../utils/defaults");
-const { ERROR } = require("../utils/messages");
+const { CONNECTION_STATUSES } = require("../utils/constants/defaults");
+const { ERROR } = require("../utils/constants/messages");
 
 const connectionRequestSchema = new mongoose.Schema(
   {

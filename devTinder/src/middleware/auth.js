@@ -1,7 +1,7 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
-const { JWT } = require("../utils/config");
-const { MESSAGES } = require("../utils/messages");
+const { JWT } = require("../utils/constants/config");
+const { MESSAGES } = require("../utils/constants/messages");
 
 const userAuth = async (req, res, next) => {
   try {
