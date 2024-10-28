@@ -6,8 +6,7 @@ const { faCodePullRequest } = require("@fortawesome/free-solid-svg-icons");
 const userRouter = express.Router();
 const User = require("../models/user");
 const ConnectionRequest = require("../models/connectionRequest");
-const { USER_DEFAULTS } = require("../utils/defaults");
-const { FEED_CONFIG } = require("../utils/config");
+const { USER_DEFAULTS, FEED_CONFIG } = require("../utils/defaults");
 const { PROFILE_MESSAGES, FEED_MESSAGES } = require("../utils/messages");
 
 // Helper function for pagination
@@ -66,11 +65,10 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
     if (!acceptedRequests.length) {
       return res
         .status(404)
-        .json({ message: PROFILE_MESSAGES.NO_PENDING_REQUESTS });
+        .json({ message: PROFILE_MESSAGES.NO_ACTIVE_CONNECTIONS });
     }
-
-    const connections = acceptedRequests.map((req) =>
-      req.fromUserId._id.equals(req.user._id) ? req.toUserId : req.fromUserId
+    const connections = acceptedRequests.map((row) =>
+      row.fromUserId._id.equals(req.user._id) ? row.toUserId : row.fromUserId
     );
 
     res.json({

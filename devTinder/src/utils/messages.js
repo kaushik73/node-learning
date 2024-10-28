@@ -15,8 +15,8 @@ const PROFILE_MESSAGES = {
   UPDATE_SUCCESS: "Profile is updated successfully",
   USER_NOT_FOUND: "User not found",
   EROR_FETCHING_PROFILE: "Error Fetching Profile",
-  EROR_UPADATING_PROFILE: "Error Fetching Profile",
-  NO_PENDING_REQUESTS: "No active connection request found",
+  EROR_UPADATING_PROFILE: "Error Updating Profile",
+  NO_ACTIVE_CONNECTIONS: "No active connection request found",
   CONNECTIONS_FETCH_SUCCESS: "Connections fetched successfully",
 };
 

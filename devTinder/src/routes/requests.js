@@ -7,6 +7,7 @@ const User = require("../models/user");
 const ConnectionRequest = require("../models/connectionRequest");
 
 const { REQUEST_MESSAGES, CUSTOM_MESSAGES } = require("../utils/messages");
+const { CONNECTION_STATUSES } = require("../utils/defaults");
 // Helper function to check if a user exists
 const doesUserExist = async (userId) => {
   return await User.findById(userId);
@@ -33,7 +34,7 @@ requestRouter.post(
       const status = req.params.status;
 
       // Validate status
-      if (!ALLOWED_STATUSES.SENT.includes(status)) {
+      if (!CONNECTION_STATUSES.SENT.includes(status)) {
         return res
           .status(400)
           .json({ message: REQUEST_MESSAGES.INVALID_STATUS });
@@ -69,8 +70,8 @@ requestRouter.post(
       // Send appropriate response based on status
       const message =
         status === "interested"
-          ? REQUEST_MESSAGES.INTERESTED_MESSAGE(fromUserId, toUserId)
-          : REQUEST_MESSAGES.IGNORED_MESSAGE(fromUserId, toUserId);
+          ? CUSTOM_MESSAGES.INTERESTED_MESSAGE(fromUserId, toUserId)
+          : CUSTOM_MESSAGES.IGNORED_MESSAGE(fromUserId, toUserId);
 
       res.json({ message, data });
     } catch (err) {
@@ -80,6 +81,7 @@ requestRouter.post(
 );
 
 // Review connection request (accepted, rejected)
+// requestId is fromUserId
 requestRouter.post(
   "/request/review/:status/:requestId",
   userAuth,
@@ -89,7 +91,7 @@ requestRouter.post(
       const loggedInUser = req.user._id;
 
       // Validate status
-      if (!ALLOWED_STATUSES.REVIEW.includes(status)) {
+      if (!CONNECTION_STATUSES.REVIEW.includes(status)) {
         return res
           .status(400)
           .json({ message: REQUEST_MESSAGES.INVALID_STATUS });
@@ -97,8 +99,8 @@ requestRouter.post(
 
       // Find the connection request for review
       const connectionRequest = await ConnectionRequest.findOne({
-        fromUserId: requestId,
         toUserId: loggedInUser,
+        fromUserId: requestId,
         status: "interested",
       });
 

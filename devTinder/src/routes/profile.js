@@ -1,6 +1,7 @@
 const express = require("express");
 const profileRouter = express.Router();
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 const User = require("../models/user");
 const { userAuth } = require("../middleware/auth");
 const { validateEditProfileData } = require("../utils/validation");
@@ -32,7 +33,7 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
     const modifiedData = req.body;
     Object.keys(req.body).forEach((key) => (modifiedData[key] = req.body[key]));
 
-    const data = await User.findOneAndUpdate(
+    const updatedUser = await User.findOneAndUpdate(
       { emailId: user.emailId },
       modifiedData,
       {
@@ -64,7 +65,10 @@ profileRouter.patch("/profile/resetPassword", async (req, res) => {
     user.otpExpires = Date.now() + OTP_CONFIG.EXPIRY_DURATION;
     await user.save();
 
-    const emailResponse = await sendOtpEmail(user.emailId, otp);
+    const emailResponse = await sendOtpEmail(
+      user.emailId,
+      user.resetPasswordOtp
+    );
     if (!emailResponse.success) {
       return res.status(500).json({ message: emailResponse.message });
     }
@@ -82,6 +86,7 @@ profileRouter.patch("/profile/confirmResetPassword", async (req, res) => {
 
     if (!user)
       return res.status(404).json({ message: PROFILE_MESSAGES.USER_NOT_FOUND });
+
     if (user.resetPasswordOtp !== otp || Date.now() > user.otpExpires) {
       return res.status(400).json({ message: OTP_MESSAGES.INVALID_OR_EXPIRED });
     }
