@@ -9,13 +9,11 @@ const ConnectionRequest = require("../models/connectionRequest");
 const { USER_DEFAULTS, FEED_CONFIG } = require("../utils/defaults");
 const { PROFILE_MESSAGES, FEED_MESSAGES } = require("../utils/messages");
 
-// Helper function for pagination
 const getPagination = (page = 1, limit = FEED_CONFIG.DEFAULT_LIMIT) => {
-  limit = Math.min(limit, FEED_CONFIG.MAX_LIMIT); // Ensure limit doesn’t exceed max limit
+  limit = Math.min(limit, FEED_CONFIG.MAX_LIMIT);
   return { limit, skip: (page - 1) * limit };
 };
 
-// Helper function to get IDs of users to be hidden
 const getUsersToBeHidden = async (loggedInUser) => {
   const hiddenUsers = await ConnectionRequest.find({
     $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
@@ -50,7 +48,7 @@ userRouter.get("/user/request/recieved", userAuth, async (req, res) => {
   }
 });
 
-// Get all connections for the user
+// Get all connections
 userRouter.get("/user/connections", userAuth, async (req, res) => {
   try {
     const acceptedRequests = await ConnectionRequest.find({
@@ -82,7 +80,7 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
   }
 });
 
-// Get user feed with pagination and excluded users
+// Get user feed with pagination
 userRouter.get("/user/feed", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;

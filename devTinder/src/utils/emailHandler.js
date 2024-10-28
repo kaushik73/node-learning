@@ -6,6 +6,7 @@ const transporter = nodemailer.createTransport({
   service: EMAIL.SERVICE_TYPE,
   auth: EMAIL.CREDENTIALS,
 });
+
 async function sendOtpEmail(to, otp) {
   try {
     await transporter.sendMail({

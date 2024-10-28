@@ -62,7 +62,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// JWT generation method
 userSchema.methods.getJWT = function () {
   const user = this;
   return jwt.sign({ _id: user._id }, JWT.SECRET_KEY, {
@@ -70,7 +69,6 @@ userSchema.methods.getJWT = function () {
   });
 };
 
-// Password validation method
 userSchema.methods.validatePassword = function (inputPassword) {
   /*
   const user = this;
@@ -79,9 +77,7 @@ userSchema.methods.validatePassword = function (inputPassword) {
     passwordInputMyUser,
     hashedPasswordStoredInDb
   );
-
   return isPasswordCorrect;
-
   */
   return bcrypt.compare(inputPassword, this.password);
 };

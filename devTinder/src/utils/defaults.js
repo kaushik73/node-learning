@@ -1,11 +1,7 @@
-// defaults.js
-
-// OTP Configuration
 const OTP_CONFIG = {
   EXPIRY_DURATION: 5 * 60 * 1000, // 5 minutes
 };
 
-// User-Related Defaults
 const USER_DEFAULTS = {
   IMAGE_URI:
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4mYGiDHOtUVcSxuzNfeds4xWXNOpQ-lIMPA&s",
@@ -24,14 +20,12 @@ const USER_DEFAULTS = {
   ALLOWED_GENDERS: ["male", "female", "other"],
 };
 
-// Connection Request Statuses
 const CONNECTION_STATUSES = {
   REVIEW: ["accepted", "rejected"],
   SENT: ["interested", "ignored"],
   ALL_STATUS: ["ignored", "interested", "accepted", "rejected"],
 };
 
-// Feed Configuration
 const FEED_CONFIG = {
   DEFAULT_LIMIT: 10,
   MAX_LIMIT: 50,

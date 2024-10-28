@@ -1,6 +1,3 @@
-// messages.js
-
-// Database Messages
 const DB_MESSAGES = {
   CONNECTED: "DB Connected",
   ERROR: "Error connecting to DB",
@@ -8,7 +5,6 @@ const DB_MESSAGES = {
   MAX_RETRIES_REACHED: "Max retries reached. Shutting down.",
 };
 
-// Profile Messages
 const PROFILE_MESSAGES = {
   PROFILE_DATA: "Profile data",
   INVALID_EDIT_REQUEST: "Invalid Profile Edit Request",
@@ -20,7 +16,6 @@ const PROFILE_MESSAGES = {
   CONNECTIONS_FETCH_SUCCESS: "Connections fetched successfully",
 };
 
-// OTP Messages
 const OTP_MESSAGES = {
   SENT: "OTP sent to your email",
   INVALID_OR_EXPIRED: "Invalid or expired OTP",
@@ -29,7 +24,6 @@ const OTP_MESSAGES = {
   ERROR_RESETTING: "Error resetting password",
 };
 
-// Request Messages
 const REQUEST_MESSAGES = {
   INVALID_STATUS: "Invalid status type",
   USER_NOT_EXIST: "User does not exist",
@@ -39,14 +33,12 @@ const REQUEST_MESSAGES = {
   CONNECTION_REQUEST_UPDATED: "Connection request updated successfully",
 };
 
-// Auth Messages
-const AUTH = {
+const AUTH_MSG = {
   TOKEN_INVALID: "Token is Invalid. Please log in.",
   INVALID_CREDENTIALS: "Invalid credentials, please try again.",
   UNAUTHORIZED_ACCESS: "Unauthorized access",
 };
 
-// Feed Messages
 const FEED_MESSAGES = {
   FETCH_SUCCESS: "Feed data retrieved successfully",
   ERROR_FETCHING_DATA: "Error fetching data",
@@ -71,7 +63,6 @@ const ERROR = {
   GENDER: "Invalid gender",
 };
 
-// Custom Messages with Parameters
 const CUSTOM_MESSAGES = {
   INTERESTED_MESSAGE: (fromUser, toUser) =>
     `${fromUser} is interested in ${toUser}`,
@@ -79,7 +70,6 @@ const CUSTOM_MESSAGES = {
   ERROR: (error) => `Error: ${error.message || error}`,
 };
 
-// Additional Messages
 const GENERAL_MESSAGES = {
   INVALID_CRED: "Invalid Credentials",
   LOGOUT_SUCCESS: "Logout success",
@@ -97,7 +87,7 @@ module.exports = {
   PROFILE_MESSAGES,
   OTP_MESSAGES,
   REQUEST_MESSAGES,
-  AUTH,
+  AUTH_MSG,
   FEED_MESSAGES,
   ERROR,
   CUSTOM_MESSAGES,

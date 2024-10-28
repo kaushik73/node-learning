@@ -8,12 +8,11 @@ const ConnectionRequest = require("../models/connectionRequest");
 
 const { REQUEST_MESSAGES, CUSTOM_MESSAGES } = require("../utils/messages");
 const { CONNECTION_STATUSES } = require("../utils/defaults");
-// Helper function to check if a user exists
+
 const doesUserExist = async (userId) => {
   return await User.findById(userId);
 };
 
-// Helper function to check if a request already exists
 const isRequestAlreadyExist = async (fromUserId, toUserId) => {
   return await ConnectionRequest.findOne({
     $or: [
@@ -67,7 +66,6 @@ requestRouter.post(
       });
       const data = await connectionRequest.save();
 
-      // Send appropriate response based on status
       const message =
         status === "interested"
           ? CUSTOM_MESSAGES.INTERESTED_MESSAGE(fromUserId, toUserId)

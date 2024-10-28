@@ -10,7 +10,7 @@ const userAuth = async (req, res, next) => {
     // Check if token exists
     if (!token) {
       return res.status(401).json({
-        message: MESSAGES.AUTH.TOKEN_INVALID,
+        message: MESSAGES.AUTH_MSG.TOKEN_INVALID,
         data: null,
       });
     }
@@ -22,7 +22,7 @@ const userAuth = async (req, res, next) => {
     // Check if user exists in database
     if (!userData) {
       return res.status(401).json({
-        message: MESSAGES.AUTH.INVALID_CREDENTIALS,
+        message: MESSAGES.AUTH_MSG.INVALID_CREDENTIALS,
         data: null,
       });
     }
@@ -31,9 +31,8 @@ const userAuth = async (req, res, next) => {
     req.user = userData;
     next();
   } catch (err) {
-    // Handle JWT verification errors and send unauthorized response
     res.status(401).json({
-      message: `${MESSAGES.AUTH.UNAUTHORIZED_ACCESS}: ${err.message}`,
+      message: `${MESSAGES.AUTH_MSG.UNAUTHORIZED_ACCESS}: ${err.message}`,
       data: null,
     });
   }
