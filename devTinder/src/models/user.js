@@ -2,18 +2,9 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const {
-  Default_User_Image_URI,
-  Default_User_About,
-  JWTSecretKey,
-  JWTExpireInDays,
-} = require("../utils/constants");
-const {
-  minAgeMesssge,
-  maxAgeMesssge,
-  emailIdRequire,
-  passwordRequire,
-} = require("../utils/customMessages");
+const { USER_DEFAULTS } = require("../utils/defaults");
+const { ERROR } = require("../utils/messages");
+const { JWT } = require("../utils/config");
 
 const userSchema = new mongoose.Schema(
   {
@@ -29,44 +20,41 @@ const userSchema = new mongoose.Schema(
     },
     age: {
       type: Number,
-      min: [18, minAgeMesssge],
-      max: [100, maxAgeMesssge],
+      min: [USER_DEFAULTS.MIN_AGE, ERROR.AGE.MIN],
+      max: [USER_DEFAULTS.MAX_AGE, ERROR.AGE.MAX],
     },
-
     gender: {
       type: String,
       lowercase: true,
       validate: {
         validator: function (value) {
-          if (!["male", "female", "other"].includes(value)) {
-            throw new Error("Invalid Gender");
-          }
+          return USER_DEFAULTS.ALLOWED_GENDERS.includes(value);
         },
+        message: ERROR.GENDER,
       },
     },
     emailId: {
       type: String,
       unique: true,
-      required: [true, emailIdRequire],
+      required: [true, ERROR.EMAIL.REQUIRED],
       validate(value) {
         if (!validator.isEmail(value)) {
-          throw new Error("Invalid Email ID -  " + value);
+          throw new Error(`${ERROR.EMAIL.INVALID} - ${value}`);
         }
       },
     },
     password: {
       type: String,
-      unique: true,
       minLength: 3,
-      required: [true, passwordRequire],
+      required: [true, ERROR.PASSWORD.REQUIRED],
     },
     about: {
       type: String,
-      default: Default_User_About,
+      default: USER_DEFAULTS.ABOUT,
     },
     profileURL: {
       type: String,
-      default: Default_User_Image_URI,
+      default: USER_DEFAULTS.IMAGE_URI,
     },
     resetPasswordOtp: { type: String },
     otpExpires: { type: Date },
@@ -74,15 +62,17 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.methods.getJWT = async function () {
+// JWT generation method
+userSchema.methods.getJWT = function () {
   const user = this;
-  const token = await jwt.sign({ _id: user._id }, JWTSecretKey, {
-    expiresIn: JWTExpireInDays,
+  return jwt.sign({ _id: user._id }, JWT.SECRET_KEY, {
+    expiresIn: JWT.EXPIRES_IN,
   });
-
-  return token;
 };
-userSchema.methods.validatePassword = async function (passwordInputMyUser) {
+
+// Password validation method
+userSchema.methods.validatePassword = function (inputPassword) {
+  /*
   const user = this;
   const hashedPasswordStoredInDb = user.password;
   const isPasswordCorrect = await bcrypt.compare(
@@ -91,6 +81,9 @@ userSchema.methods.validatePassword = async function (passwordInputMyUser) {
   );
 
   return isPasswordCorrect;
+
+  */
+  return bcrypt.compare(inputPassword, this.password);
 };
 
 module.exports = mongoose.model("users", userSchema);

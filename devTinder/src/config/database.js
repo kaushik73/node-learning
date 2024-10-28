@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
-const { MongoDbURI } = require("../utils/constants");
+const { DATABASE } = require("../utils/config");
 
 const connectDB = async () => {
-  await mongoose.connect(MongoDbURI);
+  await mongoose.connect(DATABASE.URI);
 };
 module.exports = connectDB;

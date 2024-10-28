@@ -3,95 +3,108 @@ const connectionRequest = require("../models/connectionRequest");
 const users = require("../models/user");
 const { userAuth } = require("../middleware/auth");
 const { faCodePullRequest } = require("@fortawesome/free-solid-svg-icons");
-const { maxFeedLimit, defaultFeedLimit } = require("../utils/constants");
 const userRouter = express.Router();
+const User = require("../models/user");
+const ConnectionRequest = require("../models/connectionRequest");
+const { USER_DEFAULTS } = require("../utils/defaults");
+const { FEED_CONFIG } = require("../utils/config");
+const { PROFILE_MESSAGES, FEED_MESSAGES } = require("../utils/messages");
 
-// pending connection requests
+// Helper function for pagination
+const getPagination = (page = 1, limit = FEED_CONFIG.DEFAULT_LIMIT) => {
+  limit = Math.min(limit, FEED_CONFIG.MAX_LIMIT); // Ensure limit doesn’t exceed max limit
+  return { limit, skip: (page - 1) * limit };
+};
+
+// Helper function to get IDs of users to be hidden
+const getUsersToBeHidden = async (loggedInUser) => {
+  const hiddenUsers = await ConnectionRequest.find({
+    $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
+  }).select("fromUserId toUserId");
+
+  return new Set(
+    hiddenUsers.flatMap((user) => [
+      user.fromUserId.toString(),
+      user.toUserId.toString(),
+    ])
+  );
+};
+
+// Get pending connection requests
 userRouter.get("/user/request/recieved", userAuth, async (req, res) => {
   try {
-    const interestedRequest = await connectionRequest
-      .find({
-        toUserId: req.user._id,
-        status: "interested",
-      })
-      .populate("fromUserId", userSafeData);
+    const pendingRequests = await ConnectionRequest.find({
+      toUserId: req.user._id,
+      status: "interested",
+    }).populate("fromUserId", USER_DEFAULTS.SAFE_DATA_FIELDS);
 
-    if (!interestedRequest.length > 0) {
+    if (!pendingRequests.length) {
       return res
-        .status(203)
-        .json({ message: "No active connection request found", data: [] });
+        .status(204)
+        .json({ message: PROFILE_MESSAGES.NO_PENDING_REQUESTS, data: [] });
     }
-    res.json({ data: interestedRequest });
+    res.json({ data: pendingRequests });
   } catch (err) {
-    res.status(401).send("Error : " + err);
+    res
+      .status(500)
+      .json({ message: FEED_MESSAGES.ERROR_FETCHING_DATA, error: err.message });
   }
 });
 
+// Get all connections for the user
 userRouter.get("/user/connections", userAuth, async (req, res) => {
   try {
-    const acceptedRequests = await connectionRequest
-      .find({
-        $or: [
-          { fromUserId: req.user._id, status: "accepted" },
-          { toUserId: req.user._id, status: "accepted" },
-        ],
-      })
-      .populate("fromUserId", userSafeData)
-      .populate("toUserId", userSafeData);
-    if (!acceptedRequests.length > 0) {
+    const acceptedRequests = await ConnectionRequest.find({
+      $or: [
+        { fromUserId: req.user._id, status: "accepted" },
+        { toUserId: req.user._id, status: "accepted" },
+      ],
+    })
+      .populate("fromUserId", USER_DEFAULTS.SAFE_DATA_FIELDS)
+      .populate("toUserId", USER_DEFAULTS.SAFE_DATA_FIELDS);
+
+    if (!acceptedRequests.length) {
       return res
         .status(404)
-        .json({ message: "No active connection request found" });
+        .json({ message: PROFILE_MESSAGES.NO_PENDING_REQUESTS });
     }
 
-    const data = acceptedRequests.map((row) => {
-      if (row?.fromUserId._id.equals(req.user._id)) {
-        return row.toUserId;
-      }
-      return row.fromUserId;
+    const connections = acceptedRequests.map((req) =>
+      req.fromUserId._id.equals(req.user._id) ? req.toUserId : req.fromUserId
+    );
+
+    res.json({
+      data: connections,
+      message: PROFILE_MESSAGES.CONNECTIONS_FETCH_SUCCESS,
     });
-    res.json({ data, message: "connections fetched successfully!" });
   } catch (err) {
-    res.status(401).send("Error : " + err.message);
+    res
+      .status(500)
+      .json({ message: FEED_MESSAGES.ERROR_FETCHING_DATA, error: err.message });
   }
 });
 
+// Get user feed with pagination and excluded users
 userRouter.get("/user/feed", userAuth, async (req, res) => {
-  const loggedInUser = req.user;
-  let limit = req.query.limit || defaultFeedLimit;
-  limit = limit > maxFeedLimit ? maxFeedLimit : limit;
-  const page = req.query.page || 1;
-  const skip = (page - 1) * defaultFeedLimit;
   try {
-    const usersToBeHidden = await connectionRequest
-      .find({
-        $or: [{ fromUserId: loggedInUser }, { toUserId: loggedInUser }],
-      })
-      .select("fromUserId toUserId");
+    const loggedInUser = req.user;
+    const { page = 1, limit = FEED_CONFIG.DEFAULT_LIMIT } = req.query;
+    const { limit: limited, skip } = getPagination(page, limit);
 
-    let usersToBeHiddenSet = new Set();
+    const hiddenUsersSet = await getUsersToBeHidden(loggedInUser);
 
-    usersToBeHidden.map((user) => {
-      usersToBeHiddenSet.add(user.fromUserId.toString());
-      usersToBeHiddenSet.add(user.toUserId.toString());
-    });
-
-    const usersToShow = await users
-      .find({
-        $and: [
-          { _id: { $ne: loggedInUser._id } },
-          {
-            _id: { $nin: Array.from(usersToBeHiddenSet) },
-          },
-        ],
-      })
-      .select(userSafeData)
+    const feedUsers = await User.find({
+      _id: { $nin: Array.from(hiddenUsersSet).concat(loggedInUser._id) },
+    })
+      .select(USER_DEFAULTS.SAFE_DATA_FIELDS)
       .skip(skip)
-      .limit(limit);
+      .limit(limited);
 
-    res.json({ data: usersToShow, message: "feed data " });
+    res.json({ data: feedUsers, message: FEED_MESSAGES.FETCH_SUCCESS });
   } catch (err) {
-    res.status(400).send("Error " + err.message);
+    res
+      .status(500)
+      .json({ message: FEED_MESSAGES.ERROR_FETCHING_DATA, error: err.message });
   }
 });
 

@@ -5,12 +5,24 @@ const jwt = require("jsonwebtoken");
 const { userAuth } = require("../middleware/auth");
 const User = require("../models/user");
 const ConnectionRequest = require("../models/connectionRequest");
-const {
-  allowedReviewStatus,
-  allowedSentStatus,
-} = require("../utils/constants");
 
-// for interseted , ignored
+const { REQUEST_MESSAGES, CUSTOM_MESSAGES } = require("../utils/messages");
+// Helper function to check if a user exists
+const doesUserExist = async (userId) => {
+  return await User.findById(userId);
+};
+
+// Helper function to check if a request already exists
+const isRequestAlreadyExist = async (fromUserId, toUserId) => {
+  return await ConnectionRequest.findOne({
+    $or: [
+      { fromUserId, toUserId },
+      { fromUserId: toUserId, toUserId: fromUserId },
+    ],
+  });
+};
+
+// Send connection request (interested, ignored)
 requestRouter.post(
   "/request/send/:status/:userId",
   userAuth,
@@ -20,81 +32,90 @@ requestRouter.post(
       const toUserId = req.params.userId;
       const status = req.params.status;
 
+      // Validate status
+      if (!ALLOWED_STATUSES.SENT.includes(status)) {
+        return res
+          .status(400)
+          .json({ message: REQUEST_MESSAGES.INVALID_STATUS });
+      }
+
+      // Check if the target user exists
+      if (!(await doesUserExist(toUserId))) {
+        return res
+          .status(404)
+          .json({ message: REQUEST_MESSAGES.USER_NOT_EXIST });
+      }
+
+      // Prevent sending request to self
+      if (fromUserId === toUserId) {
+        return res.status(400).json({ message: REQUEST_MESSAGES.REQUEST_SELF });
+      }
+
+      // Check if a request already exists
+      if (await isRequestAlreadyExist(fromUserId, toUserId)) {
+        return res
+          .status(400)
+          .json({ message: REQUEST_MESSAGES.REQUEST_ALREADY_EXISTS });
+      }
+
+      // Save new connection request
       const connectionRequest = new ConnectionRequest({
         fromUserId,
         toUserId,
         status,
       });
-      const allowedStatus = allowedSentStatus;
-      if (!allowedStatus.includes(status)) {
-        res.status(401).json({ message: "invalid status type", status });
-      }
-
-      const istoUserExist = await User.findById(toUserId);
-      if (!istoUserExist) {
-        return res.json({ message: "user not exist " });
-      }
-
-      const isFromAndToAreSame = fromUserId === toUserId;
-      if (isFromAndToAreSame) {
-        return res.json({ message: "You cannont sent request to yourself " });
-      }
-      const isRequestAlreadyExist = await ConnectionRequest.findOne({
-        $or: [
-          { fromUserId, toUserId },
-          { fromUserId: toUserId, toUserId: fromUserId },
-        ],
-      });
-
-      if (isRequestAlreadyExist) {
-        throw new Error("Request Already Exist, In review State");
-      }
       const data = await connectionRequest.save();
 
-      status === "interested"
-        ? res.json({
-            message: `${fromUserId} is interested in  ${toUserId}`,
-            data,
-          })
-        : res.json({
-            message: `${fromUserId} has ignored ${toUserId}`,
-            data,
-          });
+      // Send appropriate response based on status
+      const message =
+        status === "interested"
+          ? REQUEST_MESSAGES.INTERESTED_MESSAGE(fromUserId, toUserId)
+          : REQUEST_MESSAGES.IGNORED_MESSAGE(fromUserId, toUserId);
+
+      res.json({ message, data });
     } catch (err) {
-      res.status(401).send("Error : " + err);
+      res.status(500).json({ message: CUSTOM_MESSAGES.ERROR(err) });
     }
   }
 );
 
-// for accepted , rejected
+// Review connection request (accepted, rejected)
 requestRouter.post(
   "/request/review/:status/:requestId",
   userAuth,
   async (req, res) => {
     try {
-      const loggedInUser = req.user;
       const { status, requestId } = req.params;
+      const loggedInUser = req.user._id;
 
-      const allowedStatus = allowedReviewStatus;
-      if (!allowedStatus.includes(status)) {
-        res.status(401).json({ message: "invalid status type", status });
+      // Validate status
+      if (!ALLOWED_STATUSES.REVIEW.includes(status)) {
+        return res
+          .status(400)
+          .json({ message: REQUEST_MESSAGES.INVALID_STATUS });
       }
 
+      // Find the connection request for review
       const connectionRequest = await ConnectionRequest.findOne({
         fromUserId: requestId,
-        toUserId: loggedInUser._id,
+        toUserId: loggedInUser,
         status: "interested",
       });
 
+      // If request does not exist
       if (!connectionRequest) {
-        res.status(404).json({ message: "connection request not found" });
+        return res
+          .status(404)
+          .json({ message: REQUEST_MESSAGES.REQUEST_NOT_FOUND });
       }
+
+      // Update request status
       connectionRequest.status = status;
       const data = await connectionRequest.save();
 
-      res.json({ message: "connection request " + status, data });
+      res.json({ message: REQUEST_MESSAGES.CONNECTION_REQUEST_UPDATED, data });
     } catch (err) {
-      res.status(401).send("Error : " + err);
+      res.status(500).json({ message: CUSTOM_MESSAGES.ERROR(err) });
     }
   }
 );

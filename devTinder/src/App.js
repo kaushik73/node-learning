@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+require("dotenv").config();
 const authRouter = require("../src/routes/auth");
 const profileRouter = require("../src/routes/profile");
 const requestRouter = require("../src/routes/requests");
@@ -8,16 +9,20 @@ const userRouter = require("../src/routes/user");
 const connectDB = require("./config/database");
 const User = require("./models/user");
 const {
-  AllowedCorosMethods,
-  AllowedFrontEndURI,
-  MAX_SERVER_START_TRY,
-} = require("./utils/constants");
+  ALLOWED_CORS_METHODS,
+  RETRY,
+  ALLOWED_FRONTEND_URI,
+  SERVER,
+} = require("./utils/config");
+
+const { DB_MESSAGES } = require("./utils/messages");
 const app = express();
+
 app.use(
   cors({
-    origin: AllowedFrontEndURI,
+    origin: ALLOWED_FRONTEND_URI,
     credentials: true,
-    methods: AllowedCorosMethods,
+    methods: ALLOWED_CORS_METHODS,
   })
 );
 
@@ -33,20 +38,22 @@ let retries = 0;
 function startApp() {
   connectDB()
     .then(() => {
-      console.log("DB Connected");
-      app.listen(7777, () => {
-        console.log("App running on port - 7777");
+      console.log(DB_MESSAGES.CONNECTED);
+      app.listen(SERVER.PORT, () => {
+        process.env.status == "production"
+          ? console.log(SERVER.START_MESSAGE(process.env.status, SERVER.PORT))
+          : console.log(SERVER.START_MESSAGE(process.env.status, SERVER.PORT));
       });
     })
     .catch(async (err) => {
-      console.error("Error:", err);
+      console.error(err);
 
-      if (retries < MAX_SERVER_START_TRY) {
+      if (retries < RETRY.MAX_ATTEMPTS) {
         retries++;
-        console.log(`Retrying to connect to DB... Attempt ${retries}`);
-        setTimeout(startApp, 3000);
+        console.log(DB_MESSAGES.RETRY(retries));
+        setTimeout(startApp, RETRY.DELAY_MS);
       } else {
-        console.log("Max retries reached. Shutting down.");
+        console.log(DB_MESSAGES.MAX_RETRIES_REACHED);
         process.exit(1);
       }
     });

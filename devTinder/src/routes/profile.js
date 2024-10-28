@@ -1,30 +1,31 @@
 const express = require("express");
 const profileRouter = express.Router();
 const bcrypt = require("bcrypt");
-const nodemailer = require("nodemailer");
 const User = require("../models/user");
 const { userAuth } = require("../middleware/auth");
 const { validateEditProfileData } = require("../utils/validation");
-const { ErrorSendingOTP } = require("../utils/customMessages");
-const { GmailSecretCred, emailServiceType } = require("../utils/constants");
-const transporter = nodemailer.createTransport({
-  service: emailServiceType,
-  auth: GmailSecretCred,
-});
 
+const { sendOtpEmail } = require("../utils/emailHandler");
+
+const { OTP_CONFIG } = require("../utils/defaults");
+const { PROFILE_MESSAGES, OTP_MESSAGES } = require("../utils/messages");
+
+// Get profile data
 profileRouter.get("/profile/view", userAuth, async (req, res) => {
   try {
-    res.json({ data: req.user, message: "profile data" });
+    res.json({ data: req.user, message: PROFILE_MESSAGES.PROFILE_DATA });
   } catch (err) {
-    // token not valid :
-    res.status(404).json({ message: "Something Went wrong", data: err });
+    res.status(500).json({ message: PROFILE_MESSAGES.EROR_FETCHING_PROFILE });
   }
 });
 
+// EDIT profile data
 profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
   try {
     if (!validateEditProfileData(req)) {
-      return res.status(203).json({ message: "Invalid Profile Edit Request " });
+      return res
+        .status(400)
+        .json({ message: PROFILE_MESSAGES.INVALID_EDIT_REQUEST });
     }
 
     const user = req.user;
@@ -40,74 +41,60 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
       }
     );
 
-    return res.json({
-      message: `${req.user.fName} profile is updated successfully`,
-      data: data,
+    res.json({
+      message: `${req.user.fName} ${PROFILE_MESSAGES.UPDATE_SUCCESS}`,
+      data: updatedUser,
     });
   } catch (err) {
-    res.status(401).send("Error : " + err.message);
+    res.status(500).json({ message: PROFILE_MESSAGES.EROR_UPADATING_PROFILE });
   }
 });
 
+// Send OTP for password reset
 profileRouter.patch("/profile/resetPassword", async (req, res) => {
-  const { emailId } = req.body;
-
   try {
+    const { emailId } = req.body;
     const user = await User.findOne({ emailId });
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user)
+      return res.status(404).json({ message: PROFILE_MESSAGES.USER_NOT_FOUND });
 
-    // Generate a 6-digit OTP
     const otp = crypto.randomInt(100000, 999999).toString();
-
     user.resetPasswordOtp = otp;
-    user.otpExpires = Date.now() + 5 * 60 * 1000; // OTP valid for 5 minutes
+    user.otpExpires = Date.now() + OTP_CONFIG.EXPIRY_DURATION;
     await user.save();
 
-    // Send OTP via email
-    const mailOptions = {
-      from: "kaushikjain67890@gmail.com",
-      to: user.emailId,
-      subject: "Password Reset OTP",
-      text: `Your OTP for resetting the password is: ${otp}. It will expire in 5 minutes.`,
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    res.json({ message: "OTP sent to your email." });
+    const emailResponse = await sendOtpEmail(user.emailId, otp);
+    if (!emailResponse.success) {
+      return res.status(500).json({ message: emailResponse.message });
+    }
+    res.json({ message: OTP_MESSAGES.SENT });
   } catch (error) {
-    res.status(500).json({ message: ErrorSendingOTP, error });
+    res.status(500).json({ message: OTP_MESSAGES.ERROR_SENDING });
   }
 });
 
+// Confirm OTP and reset password
 profileRouter.patch("/profile/confirmResetPassword", async (req, res) => {
-  const { emailId, otp, newPassword } = req.body;
-
   try {
+    const { emailId, otp, newPassword } = req.body;
     const user = await User.findOne({ emailId });
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
+    if (!user)
+      return res.status(404).json({ message: PROFILE_MESSAGES.USER_NOT_FOUND });
     if (user.resetPasswordOtp !== otp || Date.now() > user.otpExpires) {
-      return res.status(400).json({ message: "Invalid or expired OTP" });
+      return res.status(400).json({ message: OTP_MESSAGES.INVALID_OR_EXPIRED });
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    user.password = hashedPassword;
-    user.resetPasswordOtp = undefined; // Remove OTP
-    user.otpExpires = undefined; // Remove expiry time
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetPasswordOtp = undefined;
+    user.otpExpires = undefined;
     await user.save();
-    res.cookie("token", null, {
-      expires: new Date(Date.now()),
-    });
-    res.json({ message: "Password has been reset successfully." });
+
+    res.cookie("token", null, { expires: new Date(Date.now()) });
+    res.json({ message: OTP_MESSAGES.RESET_SUCCESS });
   } catch (error) {
-    res.status(500).json({ message: "Error resetting password", error });
+    res.status(500).json({ message: OTP_MESSAGES.ERROR_RESETTING });
   }
 });
 

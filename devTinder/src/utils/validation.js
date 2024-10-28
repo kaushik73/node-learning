@@ -1,10 +1,10 @@
-const { AllowedProfileUpdates } = require("./constants");
+const { USER_DEFAULTS } = require("./defaults");
 
 const validateEditProfileData = (req) => {
   try {
     const modifiedData = req.body;
 
-    const ALLOWED_UPDATES = AllowedProfileUpdates;
+    const ALLOWED_UPDATES = USER_DEFAULTS.ALLOWED_UPDATES;
     const isEditAllowed = Object.keys(modifiedData).every((k) =>
       ALLOWED_UPDATES.includes(k)
     );
