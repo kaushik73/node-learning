@@ -62,4 +62,4 @@ function startApp() {
     });
 }
 
-startApp();
+module.exports = startApp;
