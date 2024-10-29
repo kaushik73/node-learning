@@ -40,10 +40,13 @@ function startApp() {
     .then(() => {
       console.log(DB_MESSAGES.CONNECTED);
       app.listen(SERVER.PORT, () => {
-        process.env.status == "production"
-          ? console.log(SERVER.START_MESSAGE(process.env.status, SERVER.PORT))
-          : console.log(SERVER.START_MESSAGE(process.env.status, SERVER.PORT));
+        console.log(SERVER.START_MESSAGE("production", 7777));
       });
+      // app.listen(SERVER.PORT, () => {
+      //   process.env.status == "production"
+      //     ? console.log(SERVER.START_MESSAGE(process.env.status, SERVER.PORT))
+      //     : console.log(SERVER.START_MESSAGE(process.env.status, SERVER.PORT));
+      // });
     })
     .catch(async (err) => {
       console.error(err);
