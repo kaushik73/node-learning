@@ -22,11 +22,11 @@
                 },
                 {
                     "key": "Access-Control-Allow-Methods",
-                    "value": "GET, POST, OPTIONS"
+                    "value": "GET, POST, PUT, DELETE, OPTIONS"
                 },
                 {
                     "key": "Access-Control-Allow-Headers",
-                    "value": "X-Requested-With, Content-Type, Accept"
+                    "value": "Content-Type, Authorization, X-Requested-With"
                 },
                 {
                     "key": "Access-Control-Allow-Credentials",

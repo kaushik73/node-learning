@@ -20,7 +20,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "*",
+    origin: "http://localhost:5173", // Allow only this origin
     // origin: ALLOWED_FRONTEND_URI,
     credentials: true,
     methods: ALLOWED_CORS_METHODS,
