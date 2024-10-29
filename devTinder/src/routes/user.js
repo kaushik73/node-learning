@@ -43,7 +43,7 @@ userRouter.get("/user/request/recieved", userAuth, async (req, res) => {
         .status(204)
         .json({ message: PROFILE_MESSAGES.NO_PENDING_REQUESTS, data: [] });
     }
-    res.json({ data: pendingRequests });
+    return res.json({ data: pendingRequests });
   } catch (err) {
     res
       .status(500)
@@ -65,7 +65,7 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
 
     if (!acceptedRequests.length) {
       return res
-        .status(404)
+        .status(204)
         .json({ message: PROFILE_MESSAGES.NO_ACTIVE_CONNECTIONS });
     }
     const connections = acceptedRequests.map((row) =>

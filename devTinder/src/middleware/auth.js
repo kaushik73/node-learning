@@ -1,7 +1,7 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const { JWT } = require("../utils/constants/config");
-const { MESSAGES } = require("../utils/constants/messages");
+const { AUTH_MSG } = require("../utils/constants/messages");
 
 const userAuth = async (req, res, next) => {
   try {
@@ -10,7 +10,7 @@ const userAuth = async (req, res, next) => {
     // Check if token exists
     if (!token) {
       return res.status(401).json({
-        message: MESSAGES.AUTH_MSG.TOKEN_INVALID,
+        message: AUTH_MSG.TOKEN_INVALID,
         data: null,
       });
     }
@@ -22,7 +22,7 @@ const userAuth = async (req, res, next) => {
     // Check if user exists in database
     if (!userData) {
       return res.status(401).json({
-        message: MESSAGES.AUTH_MSG.INVALID_CREDENTIALS,
+        message: AUTH_MSG.INVALID_CREDENTIALS,
         data: null,
       });
     }
@@ -32,7 +32,7 @@ const userAuth = async (req, res, next) => {
     next();
   } catch (err) {
     res.status(401).json({
-      message: `${MESSAGES.AUTH_MSG.UNAUTHORIZED_ACCESS}: ${err.message}`,
+      message: `${AUTH_MSG.UNAUTHORIZED_ACCESS}: ${err.message}`,
       data: null,
     });
   }
