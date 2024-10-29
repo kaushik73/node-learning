@@ -20,7 +20,8 @@ const app = express();
 
 app.use(
   cors({
-    origin: ALLOWED_FRONTEND_URI,
+    origin: "*",
+    // origin: ALLOWED_FRONTEND_URI,
     credentials: true,
     methods: ALLOWED_CORS_METHODS,
   })
