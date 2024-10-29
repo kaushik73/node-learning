@@ -1,5 +1,6 @@
 const ALLOWED_CORS_METHODS = ["GET", "POST", "PATCH", "DELETE", "OPTIONS"];
-const ALLOWED_FRONTEND_URI = "http://localhost:5173";
+const ALLOWED_FRONTEND_URI = "*";
+const ALLOWED_FRONTEND_URI_LOCAL = "http://localhost:5173";
 
 const DATABASE = {
   URI:
