@@ -2,7 +2,6 @@ const express = require("express");
 const connectionRequest = require("../models/connectionRequest");
 const users = require("../models/user");
 const { userAuth } = require("../middleware/auth");
-const { faCodePullRequest } = require("@fortawesome/free-solid-svg-icons");
 const userRouter = express.Router();
 const User = require("../models/user");
 const ConnectionRequest = require("../models/connectionRequest");
