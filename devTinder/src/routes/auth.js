@@ -22,7 +22,9 @@ authRouter.post("/signup", async (req, res) => {
       password: hashPassword,
     });
     const userData = await user.save();
-    res.json({ message: GENERAL_MESSAGES.USER_SIGNUP_SUCCESS, data: userData });
+    res
+      .status(201)
+      .json({ message: GENERAL_MESSAGES.USER_SIGNUP_SUCCESS, data: userData });
   } catch (err) {
     let errors = [];
     Object.keys(err.errors).forEach((key) => {
