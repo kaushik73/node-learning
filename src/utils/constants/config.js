@@ -1,6 +1,5 @@
 const ALLOWED_CORS_METHODS = ["GET", "POST", "PATCH", "DELETE", "OPTIONS"];
-const ALLOWED_FRONTEND_URI = "*";
-const ALLOWED_FRONTEND_URI_LOCAL = "http://localhost:5173";
+const ALLOWED_FRONTEND_URI = "http://localhost:5173";
 
 const DATABASE = {
   URI:
@@ -31,8 +30,9 @@ const RETRY = {
 };
 
 const SERVER = {
-  PORT: 7777,
-  START_MESSAGE: (mode, port) => `Server in ${mode}, running on - ${port}`,
+  MODE: process.env.MODE || "default",
+  PORT: process.env.PORT || 3000, // Default to 3000(local) if PORT isn't set
+  START_MESSAGE: (mode, port) => `Server in ${mode} mode, running on - ${port}`,
 };
 
 module.exports = {

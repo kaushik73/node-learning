@@ -1,4 +1,3 @@
-
 # These API's we need to make
 
 ## auth
@@ -34,3 +33,7 @@ GET /user/feed
 ##
 
 ##
+
+npm run dev will use .env.local and start on PORT=7000.
+
+npm start will use .env.production and start on PORT=8000.

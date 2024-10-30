@@ -1,13 +1,19 @@
+const dotenv = require("dotenv");
+const envFile =
+  process.env.NODE_ENV === "production" ? ".env.production" : ".env.local";
+dotenv.config({ path: envFile });
+
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-require("dotenv").config();
 const authRouter = require("../src/routes/auth");
 const profileRouter = require("../src/routes/profile");
 const requestRouter = require("../src/routes/requests");
 const userRouter = require("../src/routes/user");
 const connectDB = require("./config/database");
 const User = require("./models/user");
+
+const { DB_MESSAGES } = require("./utils/constants/messages");
 const {
   ALLOWED_CORS_METHODS,
   RETRY,
@@ -15,13 +21,11 @@ const {
   SERVER,
 } = require("./utils/constants/config");
 
-const { DB_MESSAGES } = require("./utils/constants/messages");
 const app = express();
 
 app.use(
   cors({
-    origin: "*", // Allow only this origin
-    // origin: ALLOWED_FRONTEND_URI,
+    origin: ALLOWED_FRONTEND_URI,
     credentials: true,
     methods: ALLOWED_CORS_METHODS,
   })
@@ -41,13 +45,8 @@ function startApp() {
     .then(() => {
       console.log(DB_MESSAGES.CONNECTED);
       app.listen(SERVER.PORT, () => {
-        console.log(SERVER.START_MESSAGE("production", 7777));
+        console.log(SERVER.START_MESSAGE(SERVER.MODE, SERVER.PORT));
       });
-      // app.listen(SERVER.PORT, () => {
-      //   process.env.status == "production"
-      //     ? console.log(SERVER.START_MESSAGE(process.env.status, SERVER.PORT))
-      //     : console.log(SERVER.START_MESSAGE(process.env.status, SERVER.PORT));
-      // });
     })
     .catch(async (err) => {
       console.error(err);
