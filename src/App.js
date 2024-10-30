@@ -28,6 +28,7 @@ app.use(
     origin: ALLOWED_FRONTEND_URI,
     credentials: true,
     methods: ALLOWED_CORS_METHODS,
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"], // specify headers if needed
   })
 );
 
