@@ -31,7 +31,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"], // specify headers if needed
   })
 );
-app.options(ALLOWED_FRONTEND_URI, cors()); // Enable preflight across-the-board
+app.options("*", cors()); // Enable preflight across-the-board
 
 app.use(express.json());
 app.use(cookieParser());

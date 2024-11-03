@@ -1,4 +1,11 @@
-const ALLOWED_CORS_METHODS = ["GET", "POST", "PATCH", "DELETE", "OPTIONS"];
+const ALLOWED_CORS_METHODS = [
+  "GET",
+  "POST",
+  "PUT",
+  "DELETE",
+  "PATCH",
+  "OPTIONS",
+];
 const ALLOWED_FRONTEND_URI = process.env.ALLOWED_FRONTEND_URI;
 
 const DATABASE = {
