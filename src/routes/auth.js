@@ -50,8 +50,8 @@ authRouter.post("/login", async (req, res, _) => {
 
       res.cookie("token", token, {
         expires: new Date(Date.now() + 8 * 3600000),
-        // httpOnly: true, // Secure cookie, not accessible by JavaScript
-        // secure: true, // Ensures the cookie is only sent over HTTPS
+        // httpOnly: true, Secure cookie, not accessible by JavaScript
+        secure: process.env.MODE === "production", // Ensures the cookie is only sent over HTTPS
         sameSite: "none", // Allows cross-site cookies
       });
       return res.json({ data: user, message: GENERAL_MESSAGES.LOGIN_SUCCESS });
