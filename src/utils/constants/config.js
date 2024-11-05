@@ -37,7 +37,7 @@ const RETRY = {
 };
 
 const SERVER = {
-  MODE: process.env.MODE || "default",
+  MODE: process.env.NODE_ENV || "default",
   PORT: process.env.PORT || 3000, // Default to 3000(local) if PORT isn't set
   START_MESSAGE: (mode, port) => `Server in ${mode} mode, running on - ${port}`,
 };
