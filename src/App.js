@@ -11,7 +11,6 @@ const profileRouter = require("../src/routes/profile");
 const requestRouter = require("../src/routes/requests");
 const userRouter = require("../src/routes/user");
 const connectDB = require("./config/database");
-const User = require("./models/user");
 
 const { DB_MESSAGES } = require("./utils/constants/messages");
 const {
@@ -28,7 +27,7 @@ app.use(
     origin: ALLOWED_FRONTEND_URI,
     credentials: true,
     methods: ALLOWED_CORS_METHODS,
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"], // specify headers if needed
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 app.options("*", cors()); // Enable preflight across-the-board

@@ -2,9 +2,7 @@ const express = require("express");
 const authRouter = express.Router();
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
-const { USER_DEFAULTS } = require("../utils/constants/defaults");
 const { GENERAL_MESSAGES } = require("../utils/constants/messages");
-const { JWT } = require("../utils/constants/config");
 
 authRouter.post("/signup", async (req, res) => {
   try {
@@ -50,9 +48,8 @@ authRouter.post("/login", async (req, res, _) => {
 
       res.cookie("token", token, {
         expires: new Date(Date.now() + 8 * 3600000),
-        // httpOnly: true, Secure cookie, not accessible by JavaScript
-        secure: process.env.MODE === "production", // Ensures the cookie is only sent over HTTPS
-        sameSite: "none", // Allows cross-site cookies
+        secure: process.env.MODE === "production", // Ensures the cookie is only sent over HTTPS in prod
+        sameSite: process.env.MODE === "production" ? "none" : false, // Allows cross-site cookies for prod
       });
       return res.json({ data: user, message: GENERAL_MESSAGES.LOGIN_SUCCESS });
     } else {
