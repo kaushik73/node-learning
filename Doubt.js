@@ -38,28 +38,3 @@ const userAuth1 = async (req, res, next) => {
 // // ------------------------------------
 // config.js -> how to write in better way :
 // user: process.env.GMAIL_USER || "kaushikjain67890@gmail.com",
-
-"headers"
-  ::[
-    {
-      source: "/(.*)",
-      headers: [
-        {
-          key: "Access-Control-Allow-Origin",
-          value: "http://localhost:5173",
-        },
-        {
-          key: "Access-Control-Allow-Methods",
-          value: "GET, POST, PUT, DELETE, OPTIONS",
-        },
-        {
-          key: "Access-Control-Allow-Headers",
-          value: "Content-Type, Authorization, X-Requested-With",
-        },
-        {
-          key: "Access-Control-Allow-Credentials",
-          value: "true",
-        },
-      ],
-    },
-  ];
