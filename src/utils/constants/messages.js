@@ -80,6 +80,7 @@ const GENERAL_MESSAGES = {
   MAX_AGE_MESSAGE: "Age above 100 is not valid",
   EMAIL_REQUIRED: "Email ID is required",
   PASSWORD_REQUIRED: "Password is required",
+  USER_ALREADY_EXIST: "User already exist",
 };
 
 module.exports = {
