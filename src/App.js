@@ -6,7 +6,6 @@ dotenv.config({ path: envFile });
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const http = require("http"); // Import HTTP to create a server
 
 const authRouter = require("../src/routes/auth");
 const profileRouter = require("../src/routes/profile");
@@ -23,8 +22,6 @@ const {
   ALLOWED_FRONTEND_URI,
   SERVER,
 } = require("./utils/constants/config");
-
-// const server = http.createServer(app); // Create HTTP server instance
 
 app.use(
   cors({
