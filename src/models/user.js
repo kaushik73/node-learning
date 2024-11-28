@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { USER_DEFAULTS } = require("../utils/constants/defaults");
 const { ERROR } = require("../utils/constants/messages");
-const { JWT } = require("../utils/constants/config");
+const { JWT, SERVER } = require("../utils/constants/config");
 
 const userSchema = new mongoose.Schema(
   {
@@ -58,6 +58,7 @@ const userSchema = new mongoose.Schema(
     },
     resetPasswordOtp: { type: String },
     otpExpires: { type: Date },
+    lastActiveTime: { type: Date, default: null },
   },
   { timestamps: true }
 );
@@ -66,6 +67,14 @@ userSchema.methods.getJWT = function () {
   const user = this;
   return jwt.sign({ _id: user._id }, JWT.SECRET_KEY, {
     expiresIn: JWT.EXPIRES_IN,
+  });
+};
+
+userSchema.methods.setCookie = function (res, token) {
+  res.cookie("token", token, {
+    expires: new Date(Date.now() + 8 * 3600000),
+    secure: SERVER.MODE === "production", // Ensures the cookie is only sent over HTTPS in prod
+    sameSite: SERVER.MODE === "production" ? "none" : false, // Allows cross-site cookies for prod
   });
 };
 
@@ -79,7 +88,8 @@ userSchema.methods.validatePassword = function (inputPassword) {
   );
   return isPasswordCorrect;
   */
-  return bcrypt.compare(inputPassword, this.password);
+  return bcrypt.compare(inputPassword, this?.password || "");
 };
 
+// should be user
 module.exports = mongoose.model("users", userSchema);

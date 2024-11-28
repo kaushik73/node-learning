@@ -4,6 +4,8 @@ const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const { GENERAL_MESSAGES } = require("../utils/constants/messages");
 const { SERVER } = require("../utils/constants/config");
+const { io } = require("../socket/socket");
+const updateLastActiveTime = require("../middleware/updateLastActive");
 
 authRouter.post("/signup", async (req, res) => {
   try {
@@ -20,6 +22,13 @@ authRouter.post("/signup", async (req, res) => {
       emailId,
       password: hashPassword,
     });
+    const isUserAlreadyExist = await User.findOne({ emailId: emailId });
+    if (isUserAlreadyExist) {
+      return res
+        .status(203)
+        .json({ message: GENERAL_MESSAGES.USER_ALREADY_EXIST });
+    }
+
     const userData = await user.save();
     res
       .status(201)
@@ -33,30 +42,30 @@ authRouter.post("/signup", async (req, res) => {
   }
 });
 
-authRouter.post("/login", async (req, res, _) => {
+authRouter.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
 
     const user = await User.findOne({ emailId: emailId });
-
-    if (!user) {
-      return res.status(203).json({ message: GENERAL_MESSAGES.INVALID_CRED });
-    }
-
     const isPasswordCorrect = await user.validatePassword(password);
-    if (isPasswordCorrect) {
-      const token = await user.getJWT();
 
-      res.cookie("token", token, {
-        expires: new Date(Date.now() + 8 * 3600000),
-        secure: SERVER.MODE === "production", // Ensures the cookie is only sent over HTTPS in prod
-        sameSite: SERVER.MODE === "production" ? "none" : false, // Allows cross-site cookies for prod
-      });
-      return res.json({ data: user, message: GENERAL_MESSAGES.LOGIN_SUCCESS });
-    } else {
+    if (!user || !isPasswordCorrect) {
       return res.status(203).json({ message: GENERAL_MESSAGES.INVALID_CRED });
     }
+    user.lastActiveTime = new Date();
+    await user.save(); // Save the updated user document
+
+    const token = await user.getJWT();
+    await user.setCookie(res, token);
+
+    // io.emit("updateLastActiveTime", {
+    //   userId: user._id,
+    //   lastActiveTime: user.lastActiveTime,
+    // });
+
+    return res.json({ data: user, message: GENERAL_MESSAGES.LOGIN_SUCCESS });
   } catch (err) {
+    console.log(err);
     return res.status(401).json({ message: err.message });
   }
 });

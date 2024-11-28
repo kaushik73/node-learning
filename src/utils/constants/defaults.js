@@ -6,7 +6,8 @@ const USER_DEFAULTS = {
   IMAGE_URI:
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4mYGiDHOtUVcSxuzNfeds4xWXNOpQ-lIMPA&s",
   ABOUT: "This is default about",
-  SAFE_DATA_FIELDS: "fName lName age gender about skills profileURL",
+  SAFE_DATA_FIELDS:
+    "fName lName age gender about skills profileURL lastActiveTime",
   ALLOWED_PROFILE_UPDATES: [
     "profileURL",
     "about",

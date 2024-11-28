@@ -6,11 +6,14 @@ dotenv.config({ path: envFile });
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+
 const authRouter = require("../src/routes/auth");
 const profileRouter = require("../src/routes/profile");
 const requestRouter = require("../src/routes/requests");
 const userRouter = require("../src/routes/user");
+const messageRouter = require("../src/routes/message"); // Add message routes
 const connectDB = require("./config/database");
+const { app, server } = require("./socket/socket");
 
 const { DB_MESSAGES } = require("./utils/constants/messages");
 const {
@@ -19,8 +22,6 @@ const {
   ALLOWED_FRONTEND_URI,
   SERVER,
 } = require("./utils/constants/config");
-
-const app = express();
 
 app.use(
   cors({
@@ -35,17 +36,19 @@ app.options("*", cors()); // Enable preflight across-the-board
 app.use(express.json());
 app.use(cookieParser());
 
+// Routes
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
+app.use("/messages", messageRouter);
 
 let retries = 0;
 function startApp() {
   connectDB()
     .then(() => {
       console.log(DB_MESSAGES.CONNECTED);
-      app.listen(SERVER.PORT, () => {
+      server.listen(SERVER.PORT, () => {
         console.log(SERVER.START_MESSAGE(SERVER.MODE, SERVER.PORT));
       });
     })
