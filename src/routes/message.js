@@ -3,6 +3,7 @@ const router = express.Router();
 const Message = require("../models/message");
 const Conversation = require("../models/conversation");
 const { userAuth } = require("../middleware/auth");
+const { getReceiverSocketId, io } = require("../socket/socket");
 
 router.post("/send/:id", userAuth, async (req, res) => {
   try {
@@ -29,15 +30,36 @@ router.post("/send/:id", userAuth, async (req, res) => {
 
     if (newMessage) conversation.messages.push(newMessage._id);
 
-    // Todo : Socket code
     // this will run in parallel
     await Promise.all([conversation.save(), newMessage.save()]);
+
+    // Socket code
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      // below is used to send event to specific client
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
 
     res.status(201).json({ message: newMessage });
   } catch (err) {
     console.log("Error in post messages/send", err);
 
     res.status(500).json({ error: "Failed to send message" });
+  }
+});
+
+// for last seen
+router.get("/users/:userId/last-seen", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId, "lastActiveTime");
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
+    res.send({ lastActiveTime: user.lastActiveTime });
+  } catch (error) {
+    console.error("Error fetching last seen:", error);
+    res.status(500).send({ message: "Error fetching last seen" });
   }
 });
 

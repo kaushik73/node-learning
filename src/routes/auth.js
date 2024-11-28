@@ -4,6 +4,8 @@ const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const { GENERAL_MESSAGES } = require("../utils/constants/messages");
 const { SERVER } = require("../utils/constants/config");
+const { io } = require("../socket/socket");
+const updateLastActiveTime = require("../middleware/updateLastActive");
 
 authRouter.post("/signup", async (req, res) => {
   try {
@@ -50,9 +52,16 @@ authRouter.post("/login", async (req, res) => {
     if (!user || !isPasswordCorrect) {
       return res.status(203).json({ message: GENERAL_MESSAGES.INVALID_CRED });
     }
+    user.lastActiveTime = new Date();
+    await user.save(); // Save the updated user document
 
     const token = await user.getJWT();
     await user.setCookie(res, token);
+
+    // io.emit("updateLastActiveTime", {
+    //   userId: user._id,
+    //   lastActiveTime: user.lastActiveTime,
+    // });
 
     return res.json({ data: user, message: GENERAL_MESSAGES.LOGIN_SUCCESS });
   } catch (err) {
