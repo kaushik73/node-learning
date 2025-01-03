@@ -33,8 +33,5 @@ const userAuth1 = async (req, res, next) => {
 };
 
 // // ------------------------------------
-// File = message.js line=85 -> what to export = name, name_msg , name_message
-
-// // ------------------------------------
 // config.js -> how to write in better way :
 // user: process.env.GMAIL_USER || "kaushikjain67890@gmail.com",

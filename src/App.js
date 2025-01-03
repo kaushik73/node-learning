@@ -11,7 +11,8 @@ const authRouter = require("../src/routes/auth");
 const profileRouter = require("../src/routes/profile");
 const requestRouter = require("../src/routes/requests");
 const userRouter = require("../src/routes/user");
-const messageRouter = require("../src/routes/message"); // Add message routes
+const messageRouter = require("../src/routes/message");
+
 const connectDB = require("./config/database");
 const { app, server } = require("./socket/socket");
 
