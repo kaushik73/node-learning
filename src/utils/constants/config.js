@@ -10,9 +10,7 @@ const ALLOWED_FRONTEND_URI =
   process.env.ALLOWED_FRONTEND_URI || "http://localhost:5173";
 
 const DATABASE = {
-  URI:
-    process.env.MONGO_DB_URI ||
-    "mongodb+srv://NamasteNode:HcM1uzZSFggAQMtY@namastenode.l8mtm.mongodb.net/devTinder",
+  URI: process.env.MONGO_DB_URI,
 };
 
 const JWT = {
