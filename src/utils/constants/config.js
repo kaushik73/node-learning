@@ -6,7 +6,8 @@ const ALLOWED_CORS_METHODS = [
   "PATCH",
   "OPTIONS",
 ];
-const ALLOWED_FRONTEND_URI = process.env.ALLOWED_FRONTEND_URI;
+const ALLOWED_FRONTEND_URI =
+  process.env.ALLOWED_FRONTEND_URI || "http://localhost:5173";
 
 const DATABASE = {
   URI:
